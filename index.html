@@ -225,6 +225,14 @@ input,select,textarea{min-width:0;max-width:100%}
 .chip{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 14px;border-radius:19px;background:var(--fill);font-size:15px;font-weight:500;white-space:nowrap;border:1.5px solid transparent;position:relative;cursor:pointer;color:var(--text)}
 .chip.on{background:var(--accent-t);border-color:var(--accent);color:var(--accent)}
 .chip input[type=date]{position:absolute;inset:0;opacity:0;width:100%;height:100%;min-height:0;padding:0;cursor:pointer}
+.csel-on{display:flex;align-items:center;gap:12px;background:var(--accent-t);border:1.5px solid var(--accent);border-radius:12px;padding:8px 6px 8px 14px;min-height:52px}
+.csel-on b{font-weight:600}
+.csel-on .x{width:36px;height:36px;display:grid;place-items:center;color:var(--text2)}
+.clist{margin-top:6px;background:var(--card);border-radius:12px;max-height:260px;overflow:auto;box-shadow:var(--shadow);-webkit-overflow-scrolling:touch}
+.clist .ch{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text2);padding:10px 14px 4px;position:sticky;top:0;background:var(--card)}
+.clist button{display:block;width:100%;text-align:left;padding:11px 14px 11px 32px;min-height:44px;font-size:16px;border-top:.5px solid var(--line)}
+.clist button:active{background:var(--fill)}
+.cnone{padding:14px;color:var(--text2);font-size:15px}
 .colors{display:flex;flex-wrap:wrap;gap:14px;padding:4px}
 .color{width:36px;height:36px;border-radius:50%}
 .color.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--text)}
@@ -1223,7 +1231,7 @@ function openCapture(preCourse) {
   });
   const body = `<input id="qc-title" class="big" placeholder="Mit kell megjegyezni?" autocomplete="off" enterkeyhint="done" aria-label="Rövid cím">
     <div class="lbl">Tantárgy</div>
-    <div class="chips scroll">${pool.length ? pool.map((c) => `<button class="chip ${c.id === st.courseId ? 'on' : ''}" data-sact="course" data-id="${c.id}"><i class="dot" style="background:${colorOf(c)}"></i>${esc(c.name)}</button>`).join('') : '<span class="muted small">Még nincs tantárgy, később is besorolhatod.</span>'}</div>
+    <div id="qc-csel">${pool.length ? '' : '<span class="muted small">Még nincs tantárgy, később is besorolhatod.</span>'}</div>
     <div class="lbl">Típus</div>
     <div class="chips wrap">${TYPES.map(([k, l]) => `<button class="chip" data-sact="type" data-v="${k}">${l}</button>`).join('')}</div>
     <div class="lbl">Dátum</div>
@@ -1237,6 +1245,38 @@ function openCapture(preCourse) {
   const renderFiles = () => {
     const box = $('#qc-files', s.root);
     box.innerHTML = st.files.map((p, i) => `<div class="arow">${p.meta.thumb ? `<img class="th" src="${p.meta.thumb}" alt="">` : `<span class="th">${ic('file')}</span>`}<span class="grow"><span class="nm" style="display:block">${esc(p.meta.name)}</span><span class="muted small">${fmtSize(p.meta.size)}</span></span><button class="x" data-sact="rmFile" data-i="${i}" aria-label="Eltávolítás">${ic('x')}</button></div>`).join('') + (st.busy ? '<div class="busy"><i class="spin"></i>Feldolgozás…</div>' : '');
+  };
+  // Tantárgyválasztó: legutóbbiak egy koppintással + gépelős kereső lenyíló listával.
+  const norm = (x) => (x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const recentPool = recent.map((id) => pool.find((c) => c.id === id)).filter(Boolean).slice(0, 3);
+  const renderCourseList = (q) => {
+    const box = $('#qc-clist', s.root); if (!box) return;
+    const nq = norm(q).trim();
+    const hits = pool.filter((c) => !nq || norm(c.name).includes(nq) || norm((uniOfCourse(c) || {}).name).includes(nq) || norm(c.teacher).includes(nq));
+    if (!hits.length) { box.innerHTML = '<div class="cnone">Nincs ilyen tantárgy.</div>'; return; }
+    let h = '';
+    for (const u of [...S.uni].sort(sortByName)) {
+      const g = hits.filter((c) => (uniOfCourse(c) || {}).id === u.id).sort(sortByName);
+      if (!g.length) continue;
+      h += `<div class="ch"><i class="dot" style="background:${u.color}"></i>${esc(u.name)}</div>` + g.map((c) => `<button data-sact="course" data-id="${c.id}">${esc(c.name)}</button>`).join('');
+    }
+    box.innerHTML = h;
+  };
+  const renderCourse = () => {
+    const box = $('#qc-csel', s.root); if (!box || !pool.length) return;
+    if (st.courseId) {
+      const c = byId('course', st.courseId), u = uniOfCourse(c);
+      box.innerHTML = `<div class="csel-on"><i class="dot lg" style="background:${colorOf(c)}"></i><div class="grow"><b>${esc(c.name)}</b><div class="muted small">${esc(u ? u.name : '')}</div></div><button class="x" data-sact="clearCourse" aria-label="Másik tantárgy">${ic('x')}</button></div>`;
+      return;
+    }
+    box.innerHTML = (recentPool.length ? `<div class="chips wrap" style="margin-bottom:8px">${recentPool.map((c) => `<button class="chip" data-sact="course" data-id="${c.id}"><i class="dot" style="background:${colorOf(c)}"></i>${esc(c.name)}</button>`).join('')}</div>` : '') +
+      `<input id="qc-csearch" type="search" placeholder="Keresés: írd be a tárgy nevét…" autocomplete="off" enterkeyhint="search" aria-label="Tantárgy keresése">
+       <div class="clist" id="qc-clist" ${recentPool.length ? 'hidden' : ''}></div>`;
+    renderCourseList('');
+    const inp = $('#qc-csearch', s.root);
+    inp.addEventListener('focus', () => { $('#qc-clist', s.root).hidden = false; });
+    inp.addEventListener('input', () => { $('#qc-clist', s.root).hidden = false; renderCourseList(inp.value); });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const first = $('#qc-clist [data-sact=course]', s.root); if (first) first.click(); } });
   };
   const setDateChip = (v, label) => {
     st.date = v || null;
@@ -1269,7 +1309,8 @@ function openCapture(preCourse) {
         closeSheet(s);
       },
       save: (b) => save(b),
-      course: (b) => { const on = st.courseId !== b.dataset.id; st.courseId = on ? b.dataset.id : null; $$('[data-sact=course]', s.root).forEach((x) => x.classList.toggle('on', on && x === b)); },
+      course: (b) => { st.courseId = b.dataset.id; renderCourse(); },
+      clearCourse: () => { st.courseId = null; renderCourse(); const i = $('#qc-csearch', s.root); if (i) i.focus(); },
       type: (b) => { const on = st.type !== b.dataset.v; st.type = on ? b.dataset.v : null; $$('[data-sact=type]', s.root).forEach((x) => x.classList.toggle('on', on && x === b)); },
       date: (b) => { $('#qc-date', s.root).value = ''; setDateChip(b.dataset.v, null); },
       rmFile: (b) => { st.files.splice(Number(b.dataset.i), 1); renderFiles(); },
@@ -1285,6 +1326,7 @@ function openCapture(preCourse) {
       st.busy--; st.files.push(...prepared); renderFiles();
     }
   });
+  renderCourse();
   $('#qc-title', s.root).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
   try { $('#qc-title', s.root).focus({ preventScroll: true }); } catch {}
 }
