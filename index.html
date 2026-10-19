@@ -276,7 +276,7 @@ hr{border:0;border-top:.5px solid var(--line);margin:16px 0}
 .sheet-head::before{content:"";position:absolute;top:6px;left:50%;width:36px;height:5px;margin-left:-18px;border-radius:3px;background:var(--fill2)}
 .sheet-title{font-weight:700;font-size:17px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:56vw}
 .sheet-head .r{justify-self:end}
-.hbtn{color:var(--accent);font-size:17px;padding:6px 8px;min-height:38px;display:inline-flex;align-items:center}
+.hbtn{color:var(--accent);font-size:17px;padding:6px 8px;min-height:38px;display:inline-flex;align-items:center;white-space:nowrap}
 .hbtn.b{font-weight:700}
 .sheet-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:2px 16px calc(env(safe-area-inset-bottom) + 22px);overscroll-behavior:contain}
 .sheet.viewer{height:calc(100dvh - env(safe-area-inset-top) - 10px)}
@@ -604,7 +604,7 @@ function onboarding() {
   ];
   return `<div class="card onb"><h2>Kezdjük!</h2><p class="muted">Három rövid lépés, utána minden a helyén lesz.</p>${steps.map(([done, t, d, act], i) => {
     const enabled = i === 0 || steps[i - 1][0];
-    return `<div class="onb-step ${done ? 'done' : ''}"><span class="num">${done ? '✓' : i + 1}</span><div class="grow"><b>${t}</b><div class="muted">${d}</div></div>${enabled ? `<button class="btn small ${done ? '' : 'primary'}" data-act="${act}">${done ? 'Még egy' : 'Hozzáadás'}</button>` : ''}</div>`;
+    return `<div class="onb-step ${done ? 'done' : ''}"><span class="num">${done ? '✓' : i + 1}</span><div class="grow"><b>${t}</b><div class="muted">${d}</div>${act === 'newCourse' && enabled ? '<button class="link" data-act="bulkCourses" style="margin-top:4px">Lista beillesztése (több tárgy egyszerre)</button>' : ''}</div>${enabled ? `<button class="btn small ${done ? '' : 'primary'}" data-act="${act}">${done ? 'Még egy' : 'Hozzáadás'}</button>` : ''}</div>`;
   }).join('')}</div>`;
 }
 function viewOverview() {
@@ -692,14 +692,14 @@ function viewCourses() {
     for (const s of cur) h += semBlock(s, u);
     if (past.length) h += `<details class="past"><summary>Korábbi félévek (${past.length})</summary>${past.map((s) => semBlock(s, u)).join('')}</details>`;
   }
-  h += `<div class="btn-row mt"><button class="btn" data-act="newCourse">${ic('plus')} Új tantárgy</button><button class="btn" data-act="newSem">${ic('plus')} Új félév</button></div>`;
+  h += `<div class="btn-row mt"><button class="btn" data-act="newCourse">${ic('plus')} Új tantárgy</button><button class="btn" data-act="bulkCourses">${ic('list')} Lista beillesztése</button><button class="btn" data-act="newSem">${ic('plus')} Új félév</button></div>`;
   return h;
 }
 function semBlock(s, u) {
   const cs = S.course.filter((c) => c.semesterId === s.id).sort(sortByName);
   const dates = s.start && s.end ? `${fmtShort(s.start)} – ${fmtShort(s.end)}` : '';
   let h = sectionHead(s.name, dates, 'semh');
-  if (!cs.length) return sectionHead(s.name, dates, 'semh') + `<div class="empty-s">Nincs tantárgy. <button class="link" data-act="newCourse" data-sem="${s.id}">Hozzáadás</button></div>`;
+  if (!cs.length) return sectionHead(s.name, dates, 'semh') + `<div class="empty-s">Nincs tantárgy. <button class="link" data-act="newCourse" data-sem="${s.id}">Hozzáadás</button> · <button class="link" data-act="bulkCourses" data-sem="${s.id}">Lista beillesztése</button></div>`;
   const doneN = cs.filter((c) => c.completed).length;
   h = sectionHead(s.name, [dates, doneN ? `${doneN}/${cs.length} teljesítve` : ''].filter(Boolean).join(' · '), 'semh');
   const ordered = [...cs.filter((c) => !c.completed), ...cs.filter((c) => c.completed)];
@@ -948,10 +948,13 @@ function editCourse(id, semId) {
   const pre = c ? c.semesterId : (semId || (S.sem.find((x) => semActive(x)) || S.sem[0]).id);
   const body = `<div class="field"><label for="f-sem">Egyetem és félév</label><select id="f-sem">${semesterOptions(pre)}</select></div>
     <div class="field"><label for="f-name">Tantárgy neve</label><input id="f-name" value="${esc(c ? c.name : '')}" placeholder="pl. Római jog" autocomplete="off"></div>
+    ${c ? '' : '<p class="small" style="margin:-4px 4px 0"><button class="link" data-sact="bulk">Több tárgy egyszerre? Lista beillesztése</button></p>'}
     <div class="field"><label for="f-teacher">Oktató (nem kötelező)</label><input id="f-teacher" value="${esc(c ? c.teacher || '' : '')}" autocomplete="off"></div>
     <div class="field"><label for="f-notes">Követelmények és megjegyzések</label><textarea id="f-notes" rows="6" placeholder="Pl. 2 ZH + szóbeli vizsga, katalógus, jelenléti szabályok…">${esc(c ? c.notes || '' : '')}</textarea></div>`;
-  formSheet({
+  let fs;
+  fs = formSheet({
     title: c ? 'Tantárgy' : 'Új tantárgy', body,
+    actions: { bulk: () => { const sem = $('#f-sem', fs.root).value; closeSheet(fs); bulkCourses(sem); } },
     onSave: async (root) => {
       const name = $('#f-name', root).value.trim();
       if (!name) { toast('Add meg a tantárgy nevét.'); return false; }
@@ -963,6 +966,70 @@ function editCourse(id, semId) {
     onDelete: c && (() => confirmDelete('course', c.id, c.name)),
   });
 }
+// Több tantárgy felvétele egy bemásolt listából: soronként egy tárgy.
+function parseCourseList(text) {
+  let lines = text.split(/\r?\n/);
+  if (lines.filter((l) => l.trim()).length === 1 && /[;,]/.test(text)) lines = text.split(/[;,]/);
+  const out = [];
+  for (let l of lines) {
+    if (l.includes('\t')) l = l.split('\t').map((x) => x.trim()).filter((x) => /\p{L}{3}/u.test(x)).sort((a, b) => b.length - a.length)[0] || '';
+    l = l.replace(/^\s*(?:[-–—•·*▪◦●○>]+|\(?\d{1,3}[.)]|[a-z][.)])\s*/i, '').replace(/\s+/g, ' ').trim();
+    if (l.length < 2 || !/\p{L}/u.test(l)) continue;
+    if (!out.some((x) => x.toLowerCase() === l.toLowerCase())) out.push(l);
+  }
+  return out;
+}
+function bulkCourses(semId) {
+  if (!S.sem.length) { toast('Előbb vegyél fel egy félévet.'); editSem(); return; }
+  const pre = semId || (S.sem.find((x) => semActive(x)) || S.sem[0]).id;
+  let rows = []; // { name, on, dup }
+  const body = `<div class="field"><label for="b-sem">Egyetem és félév</label><select id="b-sem">${semesterOptions(pre)}</select></div>
+    <div class="field"><label for="b-text">Tantárgyak, soronként egy</label><textarea id="b-text" rows="7" placeholder="Római jog&#10;Alkotmányjog&#10;Jogtörténet&#10;…"></textarea></div>
+    <p class="muted small" style="margin:-4px 4px 0">Bárhonnan bemásolhatod (Neptun, e-mail, jegyzet). A számozást és a felsorolásjeleket automatikusan levágja.</p>
+    <div id="b-prev"></div>`;
+  let fs;
+  const norm = (x) => x.toLowerCase().trim();
+  const recompute = () => {
+    const sem = $('#b-sem', fs.root).value;
+    const existing = new Set(S.course.filter((c) => c.semesterId === sem).map((c) => norm(c.name)));
+    const old = new Map(rows.map((r) => [r.src, r]));
+    rows = parseCourseList($('#b-text', fs.root).value).map((n) => {
+      const prev = old.get(n); const dup = existing.has(norm(n));
+      return prev && prev.dup === dup ? prev : { src: n, name: n, on: !dup, dup };
+    });
+    renderPrev();
+  };
+  const renderPrev = () => {
+    const box = $('#b-prev', fs.root);
+    const n = rows.filter((r) => r.on && r.name.trim()).length;
+    $('.sheet-head [data-sact=save]', fs.root).textContent = n ? `Mentés (${n})` : 'Mentés';
+    if (!rows.length) { box.innerHTML = ''; return; }
+    box.innerHTML = `<div class="lbl">Előnézet · ${n} új tantárgy</div><div class="card">${rows.map((r, i) => `<div class="row" style="min-height:48px;padding:6px 10px">
+      <button class="ccheck ${r.on ? 'on' : ''}" data-sact="tog" data-i="${i}" aria-label="${r.on ? 'Kihagyás' : 'Felvétel'}">${statusSvg(r.on ? 'done' : 'todo')}</button>
+      <div class="grow"><input data-bname="${i}" value="${esc(r.name)}" style="background:transparent;padding:6px 4px;min-height:36px;${r.on ? '' : 'color:var(--text2);text-decoration:line-through'}" aria-label="Tantárgy neve">${r.dup ? '<div class="muted small" style="margin-left:4px">Már szerepel ebben a félévben</div>' : ''}</div></div>`).join('')}</div>`;
+  };
+  fs = formSheet({
+    title: 'Tantárgyak beillesztése', body,
+    actions: { tog: (b) => { const r = rows[Number(b.dataset.i)]; r.on = !r.on; renderPrev(); } },
+    onSave: async (root) => {
+      const sem = $('#b-sem', root).value;
+      const pick = rows.filter((r) => r.on && r.name.trim());
+      if (!pick.length) { toast('Másold be a tantárgyak listáját.'); return false; }
+      const now = Date.now();
+      await commit(pick.map((r, i) => ({ store: 'course', put: { id: uid(), createdAt: now + i, semesterId: sem, name: r.name.trim(), teacher: '', notes: '' } })));
+      if (route().name !== 'targyak') location.hash = '#/targyak';
+      renderMain();
+      toast(`${pick.length} tantárgy hozzáadva`);
+    },
+  });
+  const ta = $('#b-text', fs.root);
+  ta.addEventListener('input', recompute);
+  $('#b-sem', fs.root).addEventListener('change', recompute);
+  fs.root.addEventListener('input', (e) => { const i = e.target.dataset.bname; if (i != null) rows[Number(i)].name = e.target.value; });
+  fs.root.addEventListener('change', (e) => { if (e.target.dataset.bname != null) renderPrev(); });
+  try { ta.focus({ preventScroll: true }); } catch {}
+}
+
 /* ============ Csatolmányok ============ */
 const MAX_WARN = 50 * 1024 * 1024;
 function loadImage(file) {
@@ -1451,6 +1518,7 @@ const ACT = {
   newSem: (el) => editSem(null, el.dataset.uni),
   editSem: (el) => editSem(el.dataset.id),
   newCourse: (el) => editCourse(null, el.dataset.sem),
+  bulkCourses: (el) => bulkCourses(el.dataset.sem),
   editCourse: (el) => editCourse(el.dataset.id),
   openAtt: (el) => openViewer(el.dataset.id),
   hideInstall: () => { lsSet('hideInstall', '1'); renderMain(); },
