@@ -53,7 +53,7 @@ a{color:var(--accent)}
 #side{display:none}
 #main{min-width:0}
 .page{max-width:820px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 8px) 16px calc(env(safe-area-inset-bottom) + 112px)}
-#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(5,1fr);padding:6px 2px calc(env(safe-area-inset-bottom) + 4px);background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--line)}
+#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(4,1fr);padding:6px 2px calc(env(safe-area-inset-bottom) + 4px);background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--line)}
 .tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:500;color:var(--text3);text-decoration:none;padding:2px 0}
 .tab .ic{width:26px;height:26px}
 .tab.on{color:var(--accent)}
@@ -127,27 +127,43 @@ a{color:var(--accent)}
 details.past{margin-top:16px}
 details.past summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:15px;padding:8px 4px;list-style:none}
 details.past summary::-webkit-details-marker{display:none}
-.legend{display:flex;gap:16px;flex-wrap:wrap;margin:14px 4px;font-size:14px;color:var(--text2)}
-.legend span{display:inline-flex;align-items:center;gap:6px}
 
-/* Timetable rows */
-.occ .time{width:46px;text-align:right;font-variant-numeric:tabular-nums;flex:none;line-height:1.2}
-.occ .time b{display:block;font-size:17px;font-weight:600}
-.occ .time span{font-size:13px;color:var(--text2)}
-.occ.off .t{text-decoration:line-through;color:var(--text2)}
-.occ.past{opacity:.5}
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 6px}
+.stat{background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);text-decoration:none;color:inherit;display:block}
+.stat b{display:block;font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.stat span{font-size:13px;color:var(--text2);font-weight:500}
+.stat.red b{color:var(--danger)}
+.stat.amber b{color:var(--warn)}
+.sh.sub{margin:16px 4px 6px}
+.sh.sub h2{font-size:14px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.sh.sub.red h2{color:var(--danger)}
 
-/* Hero (next class) */
-.hero{padding:16px 18px 16px 22px;position:relative;cursor:pointer}
-.hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c,var(--accent))}
-.hero-top{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
-.hero-w{font-size:17px;font-weight:700;color:var(--accent);margin-top:8px}
-.hero-t{font-size:25px;font-weight:700;letter-spacing:-.018em;margin:2px 0 0;line-height:1.2;overflow-wrap:anywhere}
-.hero-place{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;padding-top:12px;border-top:.5px solid var(--line);font-size:17px}
-.hero-place span{display:inline-flex;align-items:center;gap:6px}
-.hero-place .pl{font-weight:600}
-.hero-place .ic{color:var(--c,var(--accent))}
-.hero.emptyh .hero-t{font-size:17px;font-weight:500;color:var(--text2)}
+/* Steps */
+.steps{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:36px 1fr 34px;gap:4px 6px;align-items:center;padding:6px 0}
+.step+.step{border-top:.5px solid var(--line)}
+.step .status{width:36px;height:36px;margin:0}
+.step .st{width:24px;height:24px}
+.step input.step-t{background:transparent;padding:6px 4px;min-height:36px;font-size:16px}
+.step input.step-t:focus{box-shadow:none;background:var(--fill)}
+.step .step-d{grid-column:2;display:flex;align-items:center;gap:8px}
+.step .step-d input{width:auto;min-height:32px;padding:4px 10px;font-size:14px;border-radius:8px}
+.step .step-d .due{font-size:13px}
+.step .x{grid-row:1;grid-column:3;width:34px;height:34px;display:grid;place-items:center;color:var(--text3)}
+.step.done input.step-t{text-decoration:line-through;color:var(--text2)}
+.progress{display:inline-flex;align-items:center;gap:4px}
+.nextstep{font-size:14px;color:var(--text2);margin-top:3px;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.nextstep b{font-weight:600;color:var(--text)}
+.nextstep .over{color:var(--danger);font-weight:600}
+.nextstep .soon{color:var(--warn);font-weight:600}
+
+/* Course completion */
+.ccheck{flex:none;width:44px;height:44px;margin:-8px -6px -8px -10px;display:grid;place-items:center;color:var(--text3)}
+.ccheck.on{color:var(--good)}
+.row.cdone .t{color:var(--text2)}
+.done-b{display:flex;gap:10px;align-items:center;background:rgba(31,138,59,.12);border-radius:12px;padding:10px 12px;font-size:15px;margin:10px 0}
+.done-b>svg{color:var(--good);width:24px;height:24px}
 
 /* Banners */
 .banner{display:flex;gap:12px;align-items:flex-start;background:var(--accent-t);border-radius:14px;padding:12px 12px 12px 14px;margin-bottom:12px;font-size:15px}
@@ -169,7 +185,7 @@ details.past summary::-webkit-details-marker{display:none}
 
 /* Buttons & form */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:12px;background:var(--fill);color:var(--accent);font-weight:600;font-size:16px;text-decoration:none;cursor:pointer;position:relative;white-space:nowrap}
-.btn .ic{width:20px;height:20px}
+.btn .ic,.btn .st{width:20px;height:20px}
 .btn.primary{background:var(--accent);color:#fff}
 .btn.danger{color:var(--danger);background:var(--danger-t)}
 .btn.small{min-height:34px;padding:0 12px;font-size:15px;border-radius:10px}
@@ -191,7 +207,9 @@ input.big:focus{box-shadow:none;border-bottom-color:var(--accent)}
 .field{margin:14px 0}
 .field>label,.lbl{display:block;font-size:13px;font-weight:600;color:var(--text2);margin:0 0 6px 4px;text-transform:uppercase;letter-spacing:.04em}
 .lbl{margin:18px 4px 6px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.grid2>*,.with-x{min-width:0}
+input,select,textarea{min-width:0;max-width:100%}
 .grid2 .field{margin:0}
 .grid2+.grid2,.field+.grid2,.grid2+.field{margin-top:14px}
 .with-x{position:relative}
@@ -216,11 +234,6 @@ input.big:focus{box-shadow:none;border-bottom-color:var(--accent)}
 hr{border:0;border-top:.5px solid var(--line);margin:16px 0}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:16px}
 .kv+.kv{border-top:.5px solid var(--line)}
-.exc-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:.5px solid var(--line);font-size:15px}
-.exc-row .x{width:32px;height:32px;display:grid;place-items:center;color:var(--danger)}
-.occ-info{background:var(--card);border-radius:14px;padding:14px 16px;margin:6px 0 14px;box-shadow:var(--shadow);border-left:6px solid var(--c)}
-.occ-info h3{margin:0 0 4px;font-size:21px}
-.occ-info div{margin-top:4px;color:var(--text2)}
 .stack{display:flex;flex-direction:column;gap:8px}
 
 /* Filters */
@@ -229,39 +242,6 @@ hr{border:0;border-top:.5px solid var(--line);margin:16px 0}
 .fsel{flex:none}
 .fsel select{width:auto;min-height:36px;padding:0 30px 0 14px;border-radius:18px;font-size:15px;font-weight:500}
 .fsel.on select{background-color:var(--accent-t);color:var(--accent)}
-
-/* Week strip (phone) */
-.seg-nav{display:flex;align-items:center;gap:6px}
-.seg-nav button{height:36px;min-width:36px;border-radius:18px;background:var(--fill);color:var(--accent);display:grid;place-items:center;padding:0 9px;font-weight:600;font-size:15px}
-.seg-nav .ic{width:20px;height:20px}
-.wstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;background:var(--card);border-radius:14px;padding:8px 4px 6px;box-shadow:var(--shadow)}
-.wd{display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0;text-align:center}
-.wd span{font-size:12px;color:var(--text2);font-weight:600}
-.wd b{font-size:18px;font-weight:600;width:36px;height:36px;display:grid;place-items:center;border-radius:50%}
-.wd.today b{color:var(--accent)}
-.wd.sel b{background:var(--accent);color:#fff}
-.wd i{width:5px;height:5px;border-radius:50%}
-.wd i.has{background:var(--text3)}
-
-/* Week grid (iPad) */
-.tg{padding-bottom:10px}
-.tg-head{display:grid;border-bottom:.5px solid var(--line)}
-.tg-head>div{padding:10px 4px;text-align:center;font-size:13px;color:var(--text2)}
-.tg-head span{display:block}
-.tg-head b{font-size:20px;color:var(--text);font-weight:600}
-.tg-head .today b{color:var(--accent)}
-.tg-body{display:grid;position:relative;margin-top:12px}
-.tg-hours{position:relative}
-.tg-hours span{position:absolute;right:8px;transform:translateY(-50%);font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums}
-.tg-col{position:relative;border-left:.5px solid var(--line);background-image:linear-gradient(var(--line) 1px,transparent 1px)}
-.tg-col.today{background-color:var(--today)}
-.tg-ev{position:absolute;overflow:hidden;text-align:left;padding:4px 6px 4px 7px;border-radius:7px;background:color-mix(in srgb,var(--c) 15%,var(--card));border-left:3px solid var(--c);font-size:12.5px;line-height:1.25;display:flex;flex-direction:column;gap:1px;z-index:1}
-.tg-ev b{font-size:13px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.tg-ev span{color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tg-ev .x{color:var(--danger);font-weight:600}
-.tg-ev.off{opacity:.6}
-.tg-ev.off b{text-decoration:line-through}
-.tg .now{position:absolute;left:0;right:0;height:2px;background:var(--danger);z-index:2}
 
 /* Attachments */
 .att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px}
@@ -478,44 +458,34 @@ const semActive = (s, d = today()) => !!s && (!s.start || d >= s.start) && (!s.e
 const sortByName = (a, b) => (a.name || '').localeCompare(b.name || '', 'hu');
 const isOpen = (it) => it.status !== 'done';
 const placeOf = (o) => [o.building, o.room].filter(Boolean).join(' · ');
+// Lépések: egy tételen belüli részfeladatok, saját határidővel.
+const stepsOf = (it) => (it && it.steps) || [];
+function nextStep(it) {
+  const open = stepsOf(it).filter((s) => !s.done);
+  if (!open.length) return null;
+  return open.filter((s) => s.date).sort((a, b) => (a.date < b.date ? -1 : 1))[0] || null;
+}
+// A tétel „esedékes” dátuma: a legközelebbi nyitott lépésé, ha az a határidő előtt van.
+function effDate(it) {
+  const ns = isOpen(it) ? nextStep(it) : null;
+  if (ns && (!it.date || ns.date < it.date)) return ns.date;
+  return it.date;
+}
 function itemSort(a, b) {
-  if (a.date && b.date) { if (a.date !== b.date) return a.date < b.date ? -1 : 1; return (a.time ?? 1e4) - (b.time ?? 1e4); }
-  if (a.date) return -1; if (b.date) return 1;
+  const da = effDate(a), dB = effDate(b);
+  if (da && dB) { if (da !== dB) return da < dB ? -1 : 1; return (a.time ?? 1e4) - (b.time ?? 1e4); }
+  if (da) return -1; if (dB) return 1;
   return (b.createdAt || 0) - (a.createdAt || 0);
 }
+const GROUPS = [['over', 'Lejárt'], ['today', 'Ma'], ['tomorrow', 'Holnap'], ['week', 'Ezen a héten'], ['later', 'Később'], ['nodate', 'Dátum nélkül'], ['done', 'Kész']];
+function bucketOf(it) {
+  if (!isOpen(it)) return 'done';
+  const d = effDate(it); if (!d) return 'nodate';
+  const t = today(), k = dayDiff(t, d);
+  if (k < 0) return 'over'; if (k === 0) return 'today'; if (k === 1) return 'tomorrow';
+  return d <= addDays(mondayOf(t), 6) ? 'week' : 'later';
+}
 const missingOf = (it) => [!it.courseId && 'tantárgy', !it.type && 'típus', !it.title && 'cím'].filter(Boolean);
-
-// Egy adott nap órái, a kivételekkel együtt.
-function occurrencesOn(date) {
-  const wd = weekday(date), out = [];
-  for (const sl of S.slot) {
-    if (sl.weekday !== wd) continue;
-    const c = byId('course', sl.courseId); if (!c) continue;
-    if (!semActive(semOf(c), date)) continue;
-    const ex = S.exc.find((e) => e.slotId === sl.id && e.date === date);
-    const base = { slot: sl, course: c, date, start: sl.start, end: sl.end, building: sl.building, room: sl.room };
-    if (ex && ex.kind === 'cancelled') out.push({ ...base, cancelled: true, exc: ex });
-    else if (ex && ex.kind === 'moved') out.push({ ...base, movedAway: true, exc: ex });
-    else out.push(base);
-  }
-  for (const e of S.exc) {
-    if (e.kind !== 'moved' || e.newDate !== date) continue;
-    const sl = byId('slot', e.slotId); if (!sl) continue;
-    const c = byId('course', sl.courseId); if (!c) continue;
-    out.push({ slot: sl, course: c, date, start: e.newStart ?? sl.start, end: e.newEnd ?? sl.end, building: e.newBuilding || sl.building, room: e.newRoom || sl.room, moved: true, exc: e });
-  }
-  return out.sort((a, b) => a.start - b.start || sortByName(a.course, b.course));
-}
-const realOcc = (o) => !o.cancelled && !o.movedAway;
-function findNextClass(filterCourse) {
-  const t = today(), nm = nowMin();
-  for (let k = 0; k <= 14; k++) {
-    const d = addDays(t, k);
-    const oc = occurrencesOn(d).filter((o) => realOcc(o) && (k > 0 || o.end > nm) && (!filterCourse || o.course.id === filterCourse));
-    if (oc.length) return oc[0];
-  }
-  return null;
-}
 
 /* ============ Kis UI-elemek ============ */
 let toastT;
@@ -527,17 +497,16 @@ const pageHead = (title, { sub = '', right = '' } = {}) =>
   `<header class="ph"><div class="grow"><h1>${esc(title)}</h1>${sub ? `<div class="sub">${sub}</div>` : ''}</div>${right ? `<div class="ph-r">${right}</div>` : ''}</header>`;
 const sectionHead = (title, aside = '', cls = '') => `<div class="sh ${cls}"><h2>${esc(title)}</h2>${aside ? `<span class="aside">${aside}</span>` : ''}</div>`;
 
-function dueInfo(it) {
-  if (!it.date) return null;
-  const k = dayDiff(today(), it.date);
-  const time = it.time != null ? ' ' + hm(it.time) : '';
-  const open = isOpen(it);
-  if (k < 0) return { text: open ? (k === -1 ? 'Tegnap lejárt' : `${-k} napja lejárt`) : fmtShort(it.date), cls: open ? 'over' : '' };
-  if (k === 0) return { text: 'Ma' + time, cls: open ? 'soon' : '' };
-  if (k === 1) return { text: 'Holnap' + time, cls: open ? 'soon' : '' };
-  if (k < 7) return { text: cap(WD[weekday(it.date) - 1]) + time, cls: '' };
-  return { text: fmtShort(it.date) + time, cls: '' };
+function dueLabel(date, time, open) {
+  const k = dayDiff(today(), date);
+  const tm = time != null ? ' ' + hm(time) : '';
+  if (k < 0) return { text: open ? (k === -1 ? 'Tegnap lejárt' : `${-k} napja lejárt`) : fmtShort(date), cls: open ? 'over' : '' };
+  if (k === 0) return { text: 'Ma' + tm, cls: open ? 'soon' : '' };
+  if (k === 1) return { text: 'Holnap' + tm, cls: open ? 'soon' : '' };
+  if (k < 7) return { text: cap(WD[weekday(date) - 1]) + tm, cls: '' };
+  return { text: fmtShort(date) + tm, cls: '' };
 }
+const dueInfo = (it) => (it.date ? dueLabel(it.date, it.time, isOpen(it)) : null);
 function itemRow(it, { showCourse = true, triage = false } = {}) {
   const c = byId('course', it.courseId);
   const attN = S.att.filter((a) => a.itemId === it.id).length;
@@ -545,27 +514,32 @@ function itemRow(it, { showCourse = true, triage = false } = {}) {
   const typeTag = it.type ? `<span class="type ${EXAM_TYPES.includes(it.type) ? 'exam' : ''}">${TYPE_LABEL[it.type]}</span>` : '<span class="type none">Típus nélkül</span>';
   const stLabel = STATUSES.find((s) => s[0] === it.status)[1];
   const missing = triage ? missingOf(it) : [];
+  const steps = stepsOf(it), doneN = steps.filter((s) => s.done).length;
+  let stepLine = '';
+  if (steps.length && isOpen(it)) {
+    const ns = nextStep(it) || steps.find((s) => !s.done);
+    if (ns) {
+      const dl = ns.date ? dueLabel(ns.date, null, true) : null;
+      stepLine = `<div class="nextstep"><span>Következő lépés:</span><b>${ns.title ? esc(ns.title) : 'névtelen lépés'}</b>${dl ? `<span class="${dl.cls}">· ${dl.text}</span>` : ''}</div>`;
+    }
+  }
   return `<div class="row item ${it.status === 'done' ? 'done' : ''}" role="button" tabindex="0" data-act="openItem" data-id="${it.id}">
     <button class="status s-${it.status}" data-act="cycleStatus" data-id="${it.id}" aria-label="Állapot: ${stLabel}. Koppints a váltáshoz.">${statusSvg(it.status)}</button>
     <div class="grow"><div class="t">${it.title ? esc(it.title) : '<i class="muted">Cím nélkül</i>'}</div>
-      <div class="meta">${typeTag}${showCourse && c ? `<span><i class="dot" style="background:${colorOf(c)}"></i>${esc(c.name)}</span>` : ''}${attN ? `<span>${ic('clip', 'sm')}${attN}</span>` : ''}${missing.length ? `<span>Hiányzik: ${missing.join(', ')}</span>` : ''}</div></div>
+      <div class="meta">${typeTag}${showCourse && c ? `<span><i class="dot" style="background:${colorOf(c)}"></i>${esc(c.name)}</span>` : ''}${steps.length ? `<span class="progress">${ic('list', 'sm')}${doneN}/${steps.length}</span>` : ''}${attN ? `<span>${ic('clip', 'sm')}${attN}</span>` : ''}${missing.length ? `<span>Hiányzik: ${missing.join(', ')}</span>` : ''}</div>${stepLine}</div>
     ${due ? `<div class="due ${due.cls}">${due.text}</div>` : ''}
   </div>`;
 }
-function occRow(o) {
-  const t = today();
-  const past = o.date === t && o.end <= nowMin() && realOcc(o);
-  const place = placeOf(o);
-  let note = '';
-  if (o.cancelled) note = '<span class="tag red">Elmarad</span>';
-  else if (o.movedAway) note = `<span class="tag">Áthelyezve: ${fmtShort(o.exc.newDate)} ${hm(o.exc.newStart ?? o.slot.start)}</span>`;
-  else if (o.moved) note = '<span class="tag">Áthelyezett óra</span>';
-  else if (o.date === t && o.start <= nowMin() && o.end > nowMin()) note = '<span class="tag red">Most</span>';
-  return `<button class="row occ ${realOcc(o) ? '' : 'off'} ${past ? 'past' : ''}" data-act="openOcc" data-slot="${o.slot.id}" data-date="${o.date}" data-moved="${o.moved ? 1 : ''}">
-    <div class="time"><b>${hm(o.start)}</b><span>${hm(o.end)}</span></div>
-    <i class="bar" style="background:${colorOf(o.course)}"></i>
-    <div class="grow"><div class="t">${esc(o.course.name)}</div><div class="meta">${place ? `<span>${ic('pin', 'sm')}${esc(place)}</span>` : '<span>Nincs helyszín megadva</span>'}${note}</div></div>
-  </button>`;
+function groupedList(list, { sub = false } = {}) {
+  let h = '';
+  for (const [key, label] of GROUPS) {
+    const g = list.filter((it) => bucketOf(it) === key);
+    if (!g.length) continue;
+    g.sort(key === 'done' ? (a, b) => (b.updatedAt || 0) - (a.updatedAt || 0) : itemSort);
+    h += sectionHead(label, String(g.length), sub ? `sub ${key === 'over' ? 'red' : ''}` : '');
+    h += `<div class="card">${g.map((i) => itemRow(i)).join('')}</div>`;
+  }
+  return h;
 }
 function attTile(a) {
   const ext = (a.name.split('.').pop() || '').toUpperCase().slice(0, 5);
@@ -573,7 +547,7 @@ function attTile(a) {
 }
 
 /* ============ Navigáció ============ */
-const NAV = [['attekintes', 'Áttekintés', 'Áttekintés', 'home'], ['orarend', 'Órarend', 'Órarend', 'cal'], ['feladatok', 'Feladatok', 'Feladatok', 'list'], ['targyak', 'Tantárgyak', 'Tantárgyak', 'book'], ['rendezes', 'Rendezésre vár', 'Rendezés', 'tray']];
+const NAV = [['attekintes', 'Áttekintés', 'Áttekintés', 'home'], ['feladatok', 'Feladatok', 'Feladatok', 'list'], ['targyak', 'Tantárgyak', 'Tantárgyak', 'book'], ['rendezes', 'Rendezésre vár', 'Rendezés', 'tray']];
 function route() { const h = location.hash.replace(/^#\/?/, '') || 'attekintes'; const [name, arg] = h.split('/'); return { name: name || 'attekintes', arg }; }
 const triageCount = () => S.item.filter((i) => i.triage).length;
 function renderNav() {
@@ -590,7 +564,6 @@ function renderMain() {
   const { name, arg } = route();
   let html;
   switch (name) {
-    case 'orarend': html = viewTimetable(); break;
     case 'feladatok': html = viewTasks(); break;
     case 'targyak': html = viewCourses(); break;
     case 'targy': html = viewCourse(arg); break;
@@ -619,53 +592,31 @@ function onboarding() {
   const steps = [
     [S.uni.length, 'Egyetemek', 'Mindkét egyetem neve és színe.', 'newUni'],
     [S.sem.length, 'Aktuális félév', 'Egyetemenként, kezdő és záró dátummal.', 'newSem'],
-    [S.course.length, 'Tantárgyak', 'Az órákat a tantárgy adatlapján adod meg.', 'newCourse'],
+    [S.course.length, 'Tantárgyak', 'A beadandókat, ZH-kat és olvasmányokat tantárgyhoz rendeled.', 'newCourse'],
   ];
   return `<div class="card onb"><h2>Kezdjük!</h2><p class="muted">Három rövid lépés, utána minden a helyén lesz.</p>${steps.map(([done, t, d, act], i) => {
     const enabled = i === 0 || steps[i - 1][0];
     return `<div class="onb-step ${done ? 'done' : ''}"><span class="num">${done ? '✓' : i + 1}</span><div class="grow"><b>${t}</b><div class="muted">${d}</div></div>${enabled ? `<button class="btn small ${done ? '' : 'primary'}" data-act="${act}">${done ? 'Még egy' : 'Hozzáadás'}</button>` : ''}</div>`;
   }).join('')}</div>`;
 }
-function nextClassCard() {
-  const n = findNextClass();
-  if (!n) return `<div class="card hero emptyh"><div class="hero-top"><span>Következő óra</span></div><div class="hero-t">Nincs óra a következő két hétben.</div></div>`;
-  const t = today(), nm = nowMin(), u = uniOfCourse(n.course);
-  const running = n.date === t && n.start <= nm;
-  let when;
-  if (n.date === t) when = running ? `Most zajlik · még ${fmtDur(n.end - nm)}` : (n.start - nm <= 180 ? `${fmtDur(n.start - nm)} múlva` : `Ma ${hm(n.start)}`);
-  else when = `${cap(fmtRel(n.date))} ${hm(n.start)}`;
-  const place = placeOf(n);
-  return `<div class="card hero" style="--c:${colorOf(n.course)}" role="button" tabindex="0" data-act="openOcc" data-slot="${n.slot.id}" data-date="${n.date}" data-moved="${n.moved ? 1 : ''}">
-    <div class="hero-top"><span>${running ? 'Most' : 'Következő óra'}</span><span>${esc(u ? u.name : '')}</span></div>
-    <div class="hero-w">${when}</div>
-    <div class="hero-t">${esc(n.course.name)}</div>
-    <div class="hero-place"><span class="pl">${ic('pin')}${place ? esc(place) : '<span class="muted">Nincs helyszín</span>'}</span><span>${ic('clock')}${hm(n.start)}–${hm(n.end)}</span></div>
-  </div>`;
-}
 function viewOverview() {
   const t = today();
   let h = pageHead('Áttekintés', { sub: cap(fmtLong(t)) });
   h += banners();
-  if (!S.course.length) return h + onboarding();
-  h += nextClassCard();
+  if (!S.course.length) h += onboarding();
 
-  const todays = occurrencesOn(t);
-  h += sectionHead('Mai órák', todays.length ? `${todays.filter(realOcc).length} óra` : '');
-  h += todays.length ? `<div class="card">${todays.map(occRow).join('')}</div>` : '<div class="empty-s">Ma nincs órád.</div>';
-  for (let k = 1; k <= 7; k++) {
-    const d = addDays(t, k), oc = occurrencesOn(d);
-    if (oc.length) { h += sectionHead(cap(fmtRel(d)), fmtShort(d)); h += `<div class="card">${oc.map(occRow).join('')}</div>`; break; }
+  const open = S.item.filter((i) => isOpen(i) && !i.triage);
+  const over = open.filter((i) => bucketOf(i) === 'over').length;
+  const week = open.filter((i) => { const d = effDate(i); return d && d >= t && d <= addDays(t, 7); }).length;
+  if (S.item.length) {
+    h += `<div class="stats">
+      <a class="stat ${over ? 'red' : ''}" href="#/feladatok" data-act="setPeriod" data-p="over"><b>${over}</b><span>Lejárt</span></a>
+      <a class="stat ${week ? 'amber' : ''}" href="#/feladatok" data-act="setPeriod" data-p="week"><b>${week}</b><span>7 napon belül</span></a>
+      <a class="stat" href="#/feladatok" data-act="setPeriod" data-p=""><b>${open.length}</b><span>Nyitott</span></a></div>`;
   }
-
-  const lim = addDays(t, 7);
-  const urgent = S.item.filter((i) => isOpen(i) && !i.triage && i.date && i.date <= lim).sort(itemSort);
-  h += sectionHead('Sürgős', `<a class="link" href="#/feladatok">Összes feladat</a>`);
-  h += urgent.length ? `<div class="card">${urgent.map((i) => itemRow(i)).join('')}</div>` : '<div class="empty-s">Nincs határidő a következő 7 napban.</div>';
-
-  const nodate = S.item.filter((i) => isOpen(i) && !i.date && !i.triage).sort(itemSort);
-  if (nodate.length) {
-    h += sectionHead('Dátum nélkül', `${nodate.length} nyitott`);
-    h += `<div class="card">${nodate.slice(0, 5).map((i) => itemRow(i)).join('')}${nodate.length > 5 ? `<a class="row more" href="#/feladatok" data-act="filterNodate">Mind a ${nodate.length} megjelenítése</a>` : ''}</div>`;
+  if (S.course.length || S.item.length) {
+    h += sectionHead('Teendők', open.length ? `<a class="link" href="#/feladatok" data-act="setPeriod" data-p="">Szűrés</a>` : '');
+    h += open.length ? groupedList(open, { sub: true }) : `<div class="empty">${ic('list', 'xl')}<p>Nincs nyitott teendő.</p><button class="btn primary" data-act="capture">${ic('plus')} Új tétel</button></div>`;
   }
   const tri = S.item.filter((i) => i.triage).sort((a, b) => b.createdAt - a.createdAt);
   if (tri.length) {
@@ -673,78 +624,6 @@ function viewOverview() {
     h += `<div class="card">${tri.slice(0, 3).map((i) => itemRow(i, { triage: true })).join('')}${tri.length > 3 ? `<a class="row more" href="#/rendezes">Összes (${tri.length})</a>` : ''}</div>`;
   }
   return h;
-}
-
-/* ============ Órarend ============ */
-let ttSel = null;
-const isWide = () => window.innerWidth >= 760;
-function viewTimetable() {
-  const t = today();
-  if (!ttSel) ttSel = t;
-  const mon = mondayOf(ttSel), sun = addDays(mon, 6);
-  const sameMonth = parseYmd(mon).getMonth() === parseYmd(sun).getMonth();
-  const range = `${fmtShort(mon)} – ${sameMonth ? parseYmd(sun).getDate() + '.' : fmtShort(sun)}${mon === mondayOf(t) ? ' · ez a hét' : ''}`;
-  const nav = `<div class="seg-nav"><button data-act="ttPrev" aria-label="Előző hét">${ic('chevL')}</button><button data-act="ttToday">Ma</button><button data-act="ttNext" aria-label="Következő hét">${ic('chevR')}</button></div>`;
-  let h = pageHead('Órarend', { sub: range, right: nav });
-  if (!S.slot.length) {
-    return h + `<div class="empty">${ic('cal', 'xl')}<p>Még nincs óra felvéve.</p><p class="muted">Órát a tantárgy adatlapján adhatsz hozzá, a „+ Óra” gombbal.</p><a class="btn primary" href="#/targyak">Tantárgyak</a></div>`;
-  }
-  h += isWide() ? weekGrid(mon) : dayView(mon);
-  if (S.uni.length > 1) h += `<div class="legend">${[...S.uni].sort(sortByName).map((u) => `<span><i class="dot" style="background:${u.color}"></i>${esc(u.name)}</span>`).join('')}</div>`;
-  return h;
-}
-function dayView(mon) {
-  const t = today();
-  let strip = '<div class="wstrip" id="wstrip">';
-  for (let i = 0; i < 7; i++) {
-    const d = addDays(mon, i);
-    const n = occurrencesOn(d).filter(realOcc).length;
-    strip += `<button class="wd ${d === ttSel ? 'sel' : ''} ${d === t ? 'today' : ''}" data-act="ttDay" data-date="${d}" aria-label="${WD[i]}, ${fmtShort(d)}"><span>${WDS[i]}</span><b>${parseYmd(d).getDate()}</b><i class="${n ? 'has' : ''}"></i></button>`;
-  }
-  strip += '</div>';
-  const oc = occurrencesOn(ttSel);
-  return strip + sectionHead(cap(WD[weekday(ttSel) - 1]), fmtShort(ttSel) + (ttSel === t ? ' · ma' : '')) +
-    (oc.length ? `<div class="card">${oc.map(occRow).join('')}</div>` : '<div class="empty-s">Nincs óra ezen a napon.</div>');
-}
-function weekGrid(mon) {
-  const t = today();
-  const days = [0, 1, 2, 3, 4, 5, 6].map((i) => addDays(mon, i));
-  const occ = days.map((d) => occurrencesOn(d));
-  const cols = days.map((d, i) => i).filter((i) => i < 5 || occ[i].length);
-  const all = cols.flatMap((i) => occ[i]);
-  let a = 8 * 60, b = 16 * 60;
-  if (all.length) { a = Math.min(...all.map((o) => o.start)); b = Math.max(...all.map((o) => o.end)); }
-  const h0 = Math.max(0, Math.floor(a / 60)), h1 = Math.min(24, Math.max(h0 + 4, Math.ceil(b / 60)));
-  const PPM = 1.15, H = (h1 - h0) * 60 * PPM;
-  const tmpl = `grid-template-columns:52px repeat(${cols.length},minmax(0,1fr))`;
-  let head = `<div class="tg-head" style="${tmpl}"><div></div>${cols.map((i) => `<div class="${days[i] === t ? 'today' : ''}"><span>${WD[i]}</span><b>${parseYmd(days[i]).getDate()}</b></div>`).join('')}</div>`;
-  let hours = '';
-  for (let x = h0; x <= h1; x++) hours += `<span style="top:${(x - h0) * 60 * PPM}px">${x}:00</span>`;
-  let body = `<div class="tg-body" style="${tmpl};height:${H}px"><div class="tg-hours">${hours}</div>`;
-  for (const i of cols) {
-    const d = days[i];
-    // Csak az egymással átfedő órák osztoznak a szélességen.
-    const placed = [];
-    let cluster = [], lanes = [], clusterEnd = -1;
-    const flush = () => { for (const p of cluster) p.L = lanes.length; placed.push(...cluster); cluster = []; lanes = []; };
-    for (const o of occ[i]) {
-      if (cluster.length && o.start >= clusterEnd) flush();
-      let l = lanes.findIndex((end) => end <= o.start);
-      if (l < 0) { l = lanes.length; lanes.push(0); }
-      lanes[l] = o.end; clusterEnd = Math.max(cluster.length ? clusterEnd : 0, o.end);
-      cluster.push({ o, l });
-    }
-    flush();
-    body += `<div class="tg-col ${d === t ? 'today' : ''}" style="background-size:100% ${60 * PPM}px">`;
-    for (const { o, l, L } of placed) {
-      const place = placeOf(o);
-      body += `<button class="tg-ev ${realOcc(o) ? '' : 'off'}" style="top:${(o.start - h0 * 60) * PPM + 1}px;height:${Math.max(24, (o.end - o.start) * PPM - 3)}px;left:calc(${(l * 100) / L}% + 2px);width:calc(${100 / L}% - 4px);--c:${colorOf(o.course)}" data-act="openOcc" data-slot="${o.slot.id}" data-date="${d}" data-moved="${o.moved ? 1 : ''}"><b>${esc(o.course.name)}</b><span>${hm(o.start)}–${hm(o.end)}</span>${place ? `<span>${esc(place)}</span>` : ''}${o.cancelled ? '<span class="x">Elmarad</span>' : ''}${o.movedAway ? '<span class="x">Áthelyezve</span>' : ''}</button>`;
-    }
-    if (d === t) { const nm = nowMin(); if (nm >= h0 * 60 && nm <= h1 * 60) body += `<i class="now" style="top:${(nm - h0 * 60) * PPM}px"></i>`; }
-    body += '</div>';
-  }
-  body += '</div>';
-  return `<div class="card tg">${head}${body}</div>`;
 }
 
 /* ============ Feladatok ============ */
@@ -761,10 +640,11 @@ function viewTasks() {
     if (F.status === 'open' && !isOpen(it)) return false;
     if (['todo', 'doing', 'done'].includes(F.status) && it.status !== F.status) return false;
     if (F.period) {
-      if (F.period === 'nodate') { if (it.date) return false; }
+      const d = effDate(it);
+      if (F.period === 'nodate') { if (d) return false; }
       else {
-        if (!it.date) return false;
-        const k = dayDiff(t, it.date);
+        if (!d) return false;
+        const k = dayDiff(t, d);
         if (F.period === 'over' && !(k < 0 && isOpen(it))) return false;
         if (F.period === 'today' && k !== 0) return false;
         if (F.period === 'week' && !(k >= 0 && k <= 7)) return false;
@@ -788,23 +668,7 @@ function viewTasks() {
   if (!list.length) {
     return h + `<div class="empty">${ic('list', 'xl')}<p>${S.item.length ? 'Nincs a szűrésnek megfelelő tétel.' : 'Még nincs tétel.'}</p>${S.item.length ? '' : `<button class="btn primary" data-act="capture">${ic('plus')} Új tétel</button>`}</div>`;
   }
-  const sun = addDays(mondayOf(t), 6);
-  const bucket = (it) => {
-    if (!isOpen(it)) return 'done';
-    if (!it.date) return 'nodate';
-    const k = dayDiff(t, it.date);
-    if (k < 0) return 'over'; if (k === 0) return 'today'; if (k === 1) return 'tomorrow';
-    if (it.date <= sun) return 'week'; return 'later';
-  };
-  const groups = [['over', 'Lejárt'], ['today', 'Ma'], ['tomorrow', 'Holnap'], ['week', 'Ezen a héten'], ['later', 'Később'], ['nodate', 'Dátum nélkül'], ['done', 'Kész']];
-  for (const [key, label] of groups) {
-    const g = list.filter((it) => bucket(it) === key);
-    if (!g.length) continue;
-    g.sort(key === 'done' ? (a, b) => (b.updatedAt || 0) - (a.updatedAt || 0) : itemSort);
-    h += sectionHead(label, String(g.length));
-    h += `<div class="card">${g.map((i) => itemRow(i)).join('')}</div>`;
-  }
-  return h;
+  return h + groupedList(list);
 }
 
 /* ============ Tantárgyak ============ */
@@ -827,13 +691,40 @@ function semBlock(s, u) {
   const cs = S.course.filter((c) => c.semesterId === s.id).sort(sortByName);
   const dates = s.start && s.end ? `${fmtShort(s.start)} – ${fmtShort(s.end)}` : '';
   let h = sectionHead(s.name, dates, 'semh');
-  if (!cs.length) return h + `<div class="empty-s">Nincs tantárgy. <button class="link" data-act="newCourse" data-sem="${s.id}">Hozzáadás</button></div>`;
-  return h + `<div class="card">${cs.map((c) => {
+  if (!cs.length) return sectionHead(s.name, dates, 'semh') + `<div class="empty-s">Nincs tantárgy. <button class="link" data-act="newCourse" data-sem="${s.id}">Hozzáadás</button></div>`;
+  const doneN = cs.filter((c) => c.completed).length;
+  h = sectionHead(s.name, [dates, doneN ? `${doneN}/${cs.length} teljesítve` : ''].filter(Boolean).join(' · '), 'semh');
+  const ordered = [...cs.filter((c) => !c.completed), ...cs.filter((c) => c.completed)];
+  return h + `<div class="card">${ordered.map((c) => {
     const open = S.item.filter((i) => i.courseId === c.id && isOpen(i)).length;
-    const nx = semActive(s) ? findNextClass(c.id) : null;
-    const meta = [c.teacher && esc(c.teacher), nx && `következő: ${fmtRel(nx.date)} ${hm(nx.start)}`].filter(Boolean).join(' · ');
-    return `<a class="row" href="#/targy/${c.id}"><i class="bar" style="background:${u.color}"></i><div class="grow"><div class="t">${esc(c.name)}</div>${meta ? `<div class="meta">${meta}</div>` : ''}</div>${open ? `<span class="count" title="Nyitott tételek">${open}</span>` : ''}${ic('chevR', 'chev')}</a>`;
+    const meta = [c.teacher && esc(c.teacher), c.completed && `Teljesítve: ${fmtShort(ymd(new Date(c.completed)))}`].filter(Boolean).join(' · ');
+    return `<div class="row ${c.completed ? 'cdone' : ''}" role="button" tabindex="0" data-act="goCourse" data-id="${c.id}">
+      <button class="ccheck ${c.completed ? 'on' : ''}" data-act="toggleCourseDone" data-id="${c.id}" aria-label="${c.completed ? 'Teljesítve. Koppints a visszavonáshoz.' : 'Megjelölés teljesítettként'}">${statusSvg(c.completed ? 'done' : 'todo')}</button>
+      <i class="bar" style="background:${u.color}"></i><div class="grow"><div class="t">${esc(c.name)}</div>${meta ? `<div class="meta">${meta}</div>` : ''}</div>${open ? `<span class="count" title="Nyitott tételek">${open}</span>` : ''}${ic('chevR', 'chev')}</div>`;
   }).join('')}</div>`;
+}
+async function toggleCourseDone(id) {
+  const c = byId('course', id); if (!c) return;
+  if (c.completed) {
+    await commit([{ store: 'course', put: { ...c, completed: null } }]);
+    renderMain(); toast('Visszavonva'); return;
+  }
+  const openItems = S.item.filter((i) => i.courseId === id && isOpen(i));
+  const mark = async (closeItems) => {
+    const now = Date.now();
+    const ops = [{ store: 'course', put: { ...c, completed: now } }];
+    if (closeItems) for (const i of openItems) ops.push({ store: 'item', put: { ...i, status: 'done', triage: false, updatedAt: now } });
+    await commit(ops);
+    renderMain(); toast(`${c.name}: teljesítve ✓`);
+  };
+  if (!openItems.length) return mark(false);
+  let s;
+  s = openSheet({
+    title: 'Tantárgy teljesítése',
+    body: `<p style="margin:8px 4px 16px">A(z) <b>${esc(c.name)}</b> tárgynak még <b>${openItems.length} nyitott tétele</b> van.</p>
+      <div class="stack"><button class="btn primary" data-sact="all">Teljesítve, és a tételek is készek</button><button class="btn" data-sact="only">Csak a tárgyat jelölöm teljesítettnek</button><button class="btn" data-sact="cancel">Mégse</button></div>`,
+    actions: { all: () => { closeSheet(s); mark(true); }, only: () => { closeSheet(s); mark(false); }, cancel: () => closeSheet(s) },
+  });
 }
 function viewCourse(id) {
   const c = byId('course', id);
@@ -841,14 +732,8 @@ function viewCourse(id) {
   const s = semOf(c), u = uniOfCourse(c);
   let h = `<a class="back" href="#/targyak">${ic('chevL')} Tantárgyak</a>`;
   h += `<header class="ph"><div class="grow"><div class="eyebrow"><i class="dot" style="background:${colorOf(c)}"></i>${esc(u ? u.name : '')} · ${esc(s ? s.name : '')}</div><h1>${esc(c.name)}</h1>${c.teacher ? `<div class="sub">${esc(c.teacher)}</div>` : ''}</div><div class="ph-r"><button class="btn small" data-act="editCourse" data-id="${c.id}">Szerkesztés</button></div></header>`;
-  h += `<button class="btn primary" data-act="capture" data-course="${c.id}">${ic('plus')} Új tétel ehhez a tárgyhoz</button>`;
-
-  const slots = S.slot.filter((x) => x.courseId === c.id).sort((a, b) => a.weekday - b.weekday || a.start - b.start);
-  h += sectionHead('Órák', `<button class="link" data-act="newSlot" data-course="${c.id}">+ Óra</button>`);
-  h += slots.length ? `<div class="card">${slots.map((sl) => {
-    const place = placeOf(sl), exN = S.exc.filter((e) => e.slotId === sl.id).length;
-    return `<button class="row" data-act="editSlot" data-id="${sl.id}"><div class="grow"><div class="t">${cap(WD[sl.weekday - 1])} ${hm(sl.start)}–${hm(sl.end)}</div><div class="meta">${place ? `<span>${ic('pin', 'sm')}${esc(place)}</span>` : '<span>Nincs helyszín</span>'}${exN ? `<span>${exN} kivétel</span>` : ''}</div></div>${ic('chevR', 'chev')}</button>`;
-  }).join('')}</div>` : '<div class="empty-s">Még nincs óra felvéve. Add meg a heti órarendi alkalmakat.</div>';
+  if (c.completed) h += `<div class="done-b">${statusSvg('done')}<div class="grow"><b>Teljesítve</b> · ${fmtShort(ymd(new Date(c.completed)))}</div><button class="btn small" data-act="toggleCourseDone" data-id="${c.id}">Visszavonás</button></div>`;
+  h += `<div class="btn-row"><button class="btn primary" data-act="capture" data-course="${c.id}">${ic('plus')} Új tétel</button>${c.completed ? '' : `<button class="btn" data-act="toggleCourseDone" data-id="${c.id}">${statusSvg('todo')} Teljesítve</button>`}</div>`;
 
   const its = S.item.filter((i) => i.courseId === c.id);
   const open = its.filter(isOpen);
@@ -1027,7 +912,7 @@ function editSem(id, uniId) {
   const body = `<div class="field"><label for="f-uni">Egyetem</label><select id="f-uni">${[...S.uni].sort(sortByName).map((u) => `<option value="${u.id}" ${u.id === preUni ? 'selected' : ''}>${esc(u.name)}</option>`).join('')}</select></div>
     <div class="field"><label for="f-name">Megnevezés</label><input id="f-name" value="${esc(s ? s.name : def.name)}" autocomplete="off"></div>
     <div class="grid2"><div class="field"><label for="f-start">Kezdete</label><input type="date" id="f-start" value="${s ? s.start || '' : def.start}"></div><div class="field"><label for="f-end">Vége</label><input type="date" id="f-end" value="${s ? s.end || '' : def.end}"></div></div>
-    <p class="muted small">Az órák csak a félév kezdete és vége között jelennek meg. A vizsgaidőszakot is számold bele, ha szeretnéd.</p>`;
+    <p class="muted small">A dátumokból tudja az alkalmazás, melyik az aktuális félév: a villámrögzítésben ennek a tárgyai jelennek meg.</p>`;
   formSheet({
     title: s ? 'Félév' : 'Új félév', body,
     onSave: async (root) => {
@@ -1070,85 +955,6 @@ function editCourse(id, semId) {
     onDelete: c && (() => confirmDelete('course', c.id, c.name)),
   });
 }
-function editSlot(id, courseId) {
-  const sl = id ? byId('slot', id) : null;
-  const c = byId('course', sl ? sl.courseId : courseId);
-  if (!c) return;
-  const prev = S.slot.filter((x) => x.courseId === c.id).pop();
-  const v = sl || { weekday: prev ? prev.weekday : 1, start: prev ? prev.start : 600, end: prev ? prev.end : 690, building: prev ? prev.building : '', room: prev ? prev.room : '' };
-  const excs = sl ? S.exc.filter((e) => e.slotId === sl.id).sort((a, b) => a.date.localeCompare(b.date)) : [];
-  const excHtml = () => excs.length ? excs.map((e) => `<div class="exc-row"><div class="grow">${fmtShort(e.date)} · ${e.kind === 'cancelled' ? 'Elmarad' : `Áthelyezve → ${fmtShort(e.newDate)} ${hm(e.newStart ?? sl.start)}${e.newRoom ? ', ' + esc(e.newRoom) : ''}`}</div><button class="x" data-sact="delExc" data-id="${e.id}" aria-label="Kivétel törlése">${ic('x')}</button></div>`).join('') : '<p class="muted small">Nincs kivétel. Elmaradó vagy áthelyezett órát az órarendben, az órára koppintva jelölhetsz.</p>';
-  const body = `<p class="muted" style="margin:0 4px"><i class="dot" style="background:${colorOf(c)}"></i> ${esc(c.name)}</p>
-    <div class="field"><label for="f-wd">Hét napja</label><select id="f-wd">${WD.map((w, i) => `<option value="${i + 1}" ${v.weekday === i + 1 ? 'selected' : ''}>${cap(w)}</option>`).join('')}</select></div>
-    <div class="grid2"><div class="field"><label for="f-start">Kezdés</label><input type="time" id="f-start" value="${toInputTime(v.start)}"></div><div class="field"><label for="f-end">Vége</label><input type="time" id="f-end" value="${toInputTime(v.end)}"></div></div>
-    <div class="grid2"><div class="field"><label for="f-bld">Épület</label><input id="f-bld" value="${esc(v.building || '')}" placeholder="pl. Q épület" autocomplete="off"></div><div class="field"><label for="f-room">Terem</label><input id="f-room" value="${esc(v.room || '')}" placeholder="pl. QBF13" autocomplete="off"></div></div>
-    <p class="muted small">Hetente ismétlődik, a félév kezdete és vége között.</p>
-    ${sl ? `<div class="field"><label>Kivételek</label><div id="exc-list">${excHtml()}</div></div>` : ''}`;
-  formSheet({
-    title: sl ? 'Óra' : 'Új óra', body, deleteLabel: 'Óra törlése',
-    actions: {
-      delExc: async (b) => {
-        await commit([{ store: 'exc', del: b.dataset.id }]);
-        excs.splice(excs.findIndex((e) => e.id === b.dataset.id), 1);
-        $('#exc-list').innerHTML = excHtml(); renderMain();
-      },
-    },
-    onSave: async (root) => {
-      const start = fromInputTime($('#f-start', root).value), end = fromInputTime($('#f-end', root).value);
-      if (start == null || end == null) { toast('Add meg a kezdést és a véget.'); return false; }
-      if (end <= start) { toast('Az óra vége legyen a kezdés után.'); return false; }
-      await commit([{ store: 'slot', put: { ...(sl || { id: uid(), courseId: c.id, createdAt: Date.now() }), weekday: Number($('#f-wd', root).value), start, end, building: $('#f-bld', root).value.trim(), room: $('#f-room', root).value.trim() } }]);
-      renderMain();
-    },
-    onDelete: sl && (() => confirmDelete('slot', sl.id, `${c.name}, ${WD[sl.weekday - 1]} ${hm(sl.start)}`)),
-  });
-}
-function openOcc(slotId, date, movedTarget) {
-  const sl = byId('slot', slotId); if (!sl) return;
-  const c = byId('course', sl.courseId); if (!c) return;
-  const exc = movedTarget ? S.exc.find((e) => e.slotId === slotId && e.kind === 'moved' && e.newDate === date) : S.exc.find((e) => e.slotId === slotId && e.date === date);
-  const start = movedTarget && exc ? exc.newStart ?? sl.start : sl.start;
-  const end = movedTarget && exc ? exc.newEnd ?? sl.end : sl.end;
-  const place = movedTarget && exc ? placeOf({ building: exc.newBuilding || sl.building, room: exc.newRoom || sl.room }) : placeOf(sl);
-  let status = '';
-  if (exc && exc.kind === 'cancelled') status = '<div><span class="tag red">Ezen a napon elmarad</span></div>';
-  else if (exc && !movedTarget) status = `<div><span class="tag">Áthelyezve: ${fmtShort(exc.newDate)} ${hm(exc.newStart ?? sl.start)}</span></div>`;
-  else if (exc) status = `<div><span class="tag">Áthelyezett óra (eredetileg ${fmtShort(exc.date)})</span></div>`;
-  const body = `<div class="occ-info" style="--c:${colorOf(c)}"><h3>${esc(c.name)}</h3><div>${cap(fmtLong(date))}</div><div>${ic('clock', 'sm')} ${hm(start)}–${hm(end)}</div><div>${ic('pin', 'sm')} ${place ? esc(place) : 'Nincs helyszín megadva'}</div>${status}</div>
-    <div class="stack">
-      ${exc ? `<button class="btn" data-sact="restore">${movedTarget ? 'Áthelyezés visszavonása' : 'Visszaállítás az eredeti időpontra'}</button>`
-    : `<button class="btn" data-sact="cancelDay">Elmarad ezen a napon</button><button class="btn" data-sact="showMove">Áthelyezés másik időpontra…</button>`}
-      <div id="move-form" hidden>
-        <div class="grid2"><div class="field"><label for="m-date">Új dátum</label><input type="date" id="m-date" value="${date}"></div><div class="field"><label for="m-room">Terem</label><input id="m-room" value="${esc(sl.room || '')}"></div></div>
-        <div class="grid2"><div class="field"><label for="m-start">Kezdés</label><input type="time" id="m-start" value="${toInputTime(sl.start)}"></div><div class="field"><label for="m-end">Vége</label><input type="time" id="m-end" value="${toInputTime(sl.end)}"></div></div>
-        <button class="btn primary block mt" data-sact="saveMove">Áthelyezés mentése</button>
-      </div>
-      <hr>
-      <button class="btn" data-sact="openCourse">Tantárgy megnyitása</button>
-      <button class="btn" data-sact="editSlot">Óra szerkesztése (minden hét)</button>
-    </div>`;
-  let s;
-  s = openSheet({
-    title: 'Óra', body,
-    right: '<button class="hbtn b" data-sact="close">Kész</button>',
-    actions: {
-      close: () => closeSheet(s),
-      cancelDay: async () => { await commit([{ store: 'exc', put: { id: uid(), slotId, date, kind: 'cancelled', createdAt: Date.now() } }]); closeSheet(s); renderMain(); toast('Elmaradónak jelölve'); },
-      restore: async () => { await commit([{ store: 'exc', del: exc.id }]); closeSheet(s); renderMain(); toast('Visszaállítva'); },
-      showMove: (b) => { b.hidden = true; $('#move-form', s.root).hidden = false; },
-      saveMove: async () => {
-        const nd = $('#m-date', s.root).value, ns = fromInputTime($('#m-start', s.root).value), ne = fromInputTime($('#m-end', s.root).value);
-        if (!nd || ns == null || ne == null || ne <= ns) { toast('Adj meg érvényes dátumot és időpontot.'); return; }
-        const room = $('#m-room', s.root).value.trim();
-        await commit([{ store: 'exc', put: { id: uid(), slotId, date, kind: 'moved', newDate: nd, newStart: ns, newEnd: ne, newRoom: room !== (sl.room || '') ? room : '', createdAt: Date.now() } }]);
-        closeSheet(s); renderMain(); toast('Áthelyezve');
-      },
-      openCourse: () => { closeSheet(s); location.hash = `#/targy/${c.id}`; },
-      editSlot: () => { closeSheet(s); editSlot(sl.id); },
-    },
-  });
-}
-
 /* ============ Csatolmányok ============ */
 const MAX_WARN = 50 * 1024 * 1024;
 function loadImage(file) {
@@ -1282,8 +1088,9 @@ function openItem(id) {
     <div class="seg" role="group" aria-label="Állapot">${STATUSES.map(([k, l]) => `<button data-sact="status" data-v="${k}" class="${it0.status === k ? 'on' : ''}">${l}</button>`).join('')}</div>
     <div class="grid2"><div class="field"><label for="i-course">Tantárgy</label><select id="i-course" data-f="courseId">${courseOptions(it0.courseId)}</select></div>
       <div class="field"><label for="i-type">Típus</label><select id="i-type" data-f="type"><option value="">— Nincs megadva —</option>${TYPES.map(([k, l]) => `<option value="${k}" ${it0.type === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
-    <div class="grid2"><div class="field"><label for="i-date">Dátum</label><div class="with-x"><input type="date" id="i-date" data-f="date" value="${it0.date || ''}"><button class="x" data-sact="clearDate" aria-label="Dátum törlése">${ic('x')}</button></div></div>
+    <div class="grid2"><div class="field"><label for="i-date">Határidő</label><div class="with-x"><input type="date" id="i-date" data-f="date" value="${it0.date || ''}"><button class="x" data-sact="clearDate" aria-label="Dátum törlése">${ic('x')}</button></div></div>
       <div class="field"><label for="i-time">Időpont</label><div class="with-x"><input type="time" id="i-time" data-f="time" value="${toInputTime(it0.time)}"><button class="x" data-sact="clearTime" aria-label="Időpont törlése">${ic('x')}</button></div></div></div>
+    <div class="field"><label>Lépések</label><div class="steps" id="it-steps"></div><button class="btn small" data-sact="addStep" style="margin-top:6px">${ic('plus')} Lépés hozzáadása</button></div>
     <div class="field"><label for="i-loc">Helyszín</label><input id="i-loc" data-f="location" value="${esc(it0.location || '')}" placeholder="pl. Q épület, QBF13" autocomplete="off"></div>
     <div class="field"><label for="i-desc">Leírás</label><textarea id="i-desc" data-f="description" rows="4" placeholder="Részletek, oldalszámok, követelmények…">${esc(it0.description || '')}</textarea></div>
     <div class="field"><label>Csatolmányok</label><div id="it-atts"></div>
@@ -1313,6 +1120,19 @@ function openItem(id) {
     const atts = S.att.filter((a) => a.itemId === id).sort((a, b) => a.createdAt - b.createdAt);
     box.innerHTML = atts.length ? atts.map((a) => `<div class="arow"><button data-act="openAtt" data-id="${a.id}" style="display:contents">${a.thumb ? `<img class="th" src="${a.thumb}" alt="">` : `<span class="th">${ic('file')}</span>`}<span class="grow"><span class="nm" style="display:block">${esc(a.name)}</span><span class="muted small">${fmtSize(a.size)}</span></span></button><button class="x" data-sact="delAtt" data-id="${a.id}" aria-label="Csatolmány törlése">${ic('x')}</button></div>`).join('') : '<p class="muted small" style="margin:0 4px">Nincs csatolmány.</p>';
   }
+  function renderSteps(steps, focusId) {
+    const box = $('#it-steps', s.root); if (!box) return;
+    box.innerHTML = steps.length ? steps.map((st) => {
+      const dl = st.date && !st.done ? dueLabel(st.date, null, true) : null;
+      return `<div class="step ${st.done ? 'done' : ''}">
+        <button class="status ${st.done ? 's-done' : ''}" data-sact="toggleStep" data-id="${st.id}" aria-label="${st.done ? 'Kész. Koppints a visszavonáshoz.' : 'Megjelölés készként'}">${statusSvg(st.done ? 'done' : 'todo')}</button>
+        <input class="step-t" data-step="title" data-id="${st.id}" value="${esc(st.title)}" placeholder="Mit kell megcsinálni?" autocomplete="off" enterkeyhint="done" aria-label="Lépés">
+        <button class="x" data-sact="delStep" data-id="${st.id}" aria-label="Lépés törlése">${ic('x')}</button>
+        <div class="step-d"><input type="date" data-step="date" data-id="${st.id}" value="${st.date || ''}" aria-label="A lépés határideje">${dl ? `<span class="due ${dl.cls}">${dl.text}</span>` : (st.date ? '' : '<span class="muted small">nincs dátum</span>')}</div>
+      </div>`;
+    }).join('') : '<p class="muted small" style="margin:0 4px">Bontsd kisebb lépésekre, mindegyiknek saját dátummal. A listákban a legközelebbi lépés dátuma szerint kerül előre a tétel.</p>';
+    if (focusId) { const el = box.querySelector(`[data-step=title][data-id="${focusId}"]`); if (el) el.focus(); }
+  }
   const onData = () => { if (!cur()) { closeSheet(s); return; } renderAtts(); };
   s = openSheet({
     title: 'Tétel', body,
@@ -1323,6 +1143,24 @@ function openItem(id) {
       clearDate: () => { $('#i-date', s.root).value = ''; save({ date: null }); },
       clearTime: () => { $('#i-time', s.root).value = ''; save({ time: null }); },
       untriage: () => save({ triage: false }),
+      addStep: () => {
+        const st = { id: uid(), title: '', date: null, done: false };
+        const steps = [...stepsOf(cur()), st];
+        renderSteps(steps, st.id);
+        save({ steps });
+      },
+      toggleStep: (b) => {
+        const steps = stepsOf(cur()).map((st) => (st.id === b.dataset.id ? { ...st, done: !st.done } : st));
+        renderSteps(steps);
+        save({ steps });
+      },
+      delStep: (b) => {
+        const st = stepsOf(cur()).find((x) => x.id === b.dataset.id);
+        if (st && st.title && !confirm(`Törlöd ezt a lépést?\n„${st.title}”`)) return;
+        const steps = stepsOf(cur()).filter((x) => x.id !== b.dataset.id);
+        renderSteps(steps);
+        save({ steps });
+      },
       delAtt: async (b) => {
         const a = byId('att', b.dataset.id);
         if (!a || !confirm(`Törlöd ezt a csatolmányt?\n„${a.name}”`)) return;
@@ -1349,6 +1187,13 @@ function openItem(id) {
   s.root.addEventListener('change', async (e) => {
     const el = e.target;
     if (el.dataset.f) { const [f, v] = readField(el); if ((cur()[f] ?? null) !== (v ?? null)) save({ [f]: v }); return; }
+    if (el.dataset.step) {
+      const key = el.dataset.step, val = key === 'title' ? el.value.trim() : (el.value || null);
+      const steps = stepsOf(cur()).map((st) => (st.id === el.dataset.id ? { ...st, [key]: val } : st));
+      if (key === 'date') renderSteps(steps);
+      save({ steps });
+      return;
+    }
     if (el.hasAttribute('data-itemup')) {
       const files = [...el.files]; el.value = '';
       await addAttachments(files, { itemId: id });
@@ -1358,14 +1203,16 @@ function openItem(id) {
   });
   window.addEventListener('unihub:data', onData);
   renderAtts();
+  // Megnyitáskor dátum szerint rendezve mutatjuk a lépéseket (dátum nélküliek a végén).
+  renderSteps([...stepsOf(it0)].sort((a, b) => (a.date && b.date ? (a.date < b.date ? -1 : a.date > b.date ? 1 : 0) : a.date ? -1 : b.date ? 1 : 0)));
 }
 
 /* ============ Villámrögzítés ============ */
 function openCapture(preCourse) {
   const st = { courseId: preCourse || null, type: null, date: null, files: [], busy: 0 };
   const t = today();
-  const active = S.course.filter((c) => semActive(semOf(c)));
-  const pool = active.length ? active : S.course.slice();
+  const active = S.course.filter((c) => !c.completed && semActive(semOf(c)));
+  const pool = active.length ? active : S.course.filter((c) => !c.completed);
   if (preCourse && !pool.some((c) => c.id === preCourse)) { const pc = byId('course', preCourse); if (pc) pool.push(pc); }
   const recent = S.meta.recentCourses || [];
   pool.sort((a, b) => {
@@ -1555,22 +1402,17 @@ const ACT = {
     renderMain();
     toast(nx === 'done' ? 'Kész ✓' : nx === 'doing' ? 'Folyamatban' : 'Nincs elkezdve');
   },
-  openOcc: (el) => openOcc(el.dataset.slot, el.dataset.date, !!el.dataset.moved),
-  ttPrev: () => { ttSel = addDays(ttSel || today(), -7); renderMain(); },
-  ttNext: () => { ttSel = addDays(ttSel || today(), 7); renderMain(); },
-  ttToday: () => { ttSel = today(); renderMain(); },
-  ttDay: (el) => { ttSel = el.dataset.date; renderMain(); },
+  goCourse: (el) => { location.hash = `#/targy/${el.dataset.id}`; },
+  toggleCourseDone: (el) => toggleCourseDone(el.dataset.id),
   newUni: () => editUni(),
   editUni: (el) => editUni(el.dataset.id),
   newSem: (el) => editSem(null, el.dataset.uni),
   editSem: (el) => editSem(el.dataset.id),
   newCourse: (el) => editCourse(null, el.dataset.sem),
   editCourse: (el) => editCourse(el.dataset.id),
-  newSlot: (el) => editSlot(null, el.dataset.course),
-  editSlot: (el) => editSlot(el.dataset.id),
   openAtt: (el) => openViewer(el.dataset.id),
   hideInstall: () => { lsSet('hideInstall', '1'); renderMain(); },
-  filterNodate: () => { F = { ...DEFAULT_F, period: 'nodate' }; saveFilters(); },
+  setPeriod: (el) => { F = { ...DEFAULT_F, period: el.dataset.p || '' }; saveFilters(); if (route().name === 'feladatok') renderMain(); },
   resetFilters: () => { F = { ...DEFAULT_F }; saveFilters(); renderMain(); },
   makeBackup: async (el) => {
     const area = $('#backup-area');
@@ -1616,24 +1458,11 @@ document.addEventListener('change', async (e) => {
   }
 });
 window.addEventListener('hashchange', () => { while (sheetStack.length) closeSheet(); renderMain(); window.scrollTo(0, 0); });
-let lastWide = isWide();
-window.addEventListener('resize', () => { const w = isWide(); if (w !== lastWide) { lastWide = w; if (route().name === 'orarend') renderMain(); } });
-// Napváltás húzással az órarendben (telefonon).
-let touchX = null, touchY = null;
-document.addEventListener('touchstart', (e) => { if (route().name !== 'orarend' || isWide() || sheetStack.length) return; touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; }, { passive: true });
-document.addEventListener('touchend', (e) => {
-  if (touchX == null) return;
-  const dx = e.changedTouches[0].clientX - touchX, dy = e.changedTouches[0].clientY - touchY;
-  touchX = null;
-  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) { ttSel = addDays(ttSel || today(), dx < 0 ? 1 : -1); renderMain(); }
-}, { passive: true });
-// Percenként frissül a „következő óra”.
+// Éjfélkor frissítjük a nézetet (Ma / Holnap / lejárt címkék).
 let lastDay = today();
 setInterval(() => {
   if (sheetStack.length || document.hidden) return;
-  const r = route().name;
-  if (today() !== lastDay) { lastDay = today(); renderMain(); return; }
-  if (r === 'attekintes' || r === 'orarend') renderMain();
+  if (today() !== lastDay) { lastDay = today(); renderMain(); }
 }, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !sheetStack.length) { lastDay = today(); renderMain(); } });
 
