@@ -1,0 +1,1660 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UniHub</title>
+<meta name="description" content="Személyes tanulmányi áttekintő: órarend, határidők, számonkérések és anyagok egy helyen.">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="UniHub">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="favicon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{
+  --bg:#f2f2f7; --card:#fff; --text:#1c1c1e; --text2:#6e6e76; --text3:#a1a1a8;
+  --line:rgba(60,60,67,.15); --fill:rgba(118,118,128,.12); --fill2:rgba(118,118,128,.22);
+  --accent:#2a5bd7; --accent-t:rgba(42,91,215,.11); --today:rgba(42,91,215,.045);
+  --danger:#d92d20; --danger-t:rgba(217,45,32,.1); --warn:#b45309; --warn-t:rgba(217,119,6,.13);
+  --good:#1f8a3b; --bar:rgba(249,249,251,.88);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.05);
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#000; --card:#1c1c1e; --text:#f2f2f7; --text2:#a0a0a8; --text3:#6c6c72;
+    --line:rgba(84,84,88,.55); --fill:rgba(118,118,128,.24); --fill2:rgba(118,118,128,.38);
+    --accent:#7393ff; --accent-t:rgba(115,147,255,.18); --today:rgba(115,147,255,.07);
+    --danger:#ff6961; --danger-t:rgba(255,105,97,.16); --warn:#fbbf24; --warn-t:rgba(251,191,36,.15);
+    --good:#4ade80; --bar:rgba(24,24,26,.88); --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+body.noscroll{overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}
+a{color:var(--accent)}
+[hidden]{display:none!important}
+.ic{width:22px;height:22px;flex:none}
+.ic.sm{width:15px;height:15px;vertical-align:-2px}
+.ic.xl{width:46px;height:46px;stroke-width:1.4}
+.muted{color:var(--text2)}
+.small{font-size:13px}
+.grow{flex:1;min-width:0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.dot.lg{width:12px;height:12px}
+
+/* Layout */
+#side{display:none}
+#main{min-width:0}
+.page{max-width:820px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 8px) 16px calc(env(safe-area-inset-bottom) + 112px)}
+#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(5,1fr);padding:6px 2px calc(env(safe-area-inset-bottom) + 4px);background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--line)}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:500;color:var(--text3);text-decoration:none;padding:2px 0}
+.tab .ic{width:26px;height:26px}
+.tab.on{color:var(--accent)}
+.badge{position:absolute;top:-3px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+#fab{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom) + 74px);z-index:21;width:58px;height:58px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;box-shadow:0 6px 18px rgba(42,91,215,.35)}
+#fab .ic{width:28px;height:28px;stroke-width:2.3}
+#fab:active{transform:scale(.94)}
+@media (min-width:900px){
+  #app{display:grid;grid-template-columns:250px 1fr;min-height:100dvh}
+  #side{display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100dvh;padding:calc(env(safe-area-inset-top) + 20px) 14px 20px;border-right:.5px solid var(--line);background:var(--bar)}
+  #tabbar,#fab{display:none}
+  .page{padding:24px 32px 60px}
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;margin:0 6px 16px}
+.brand img{width:34px;height:34px;border-radius:8px}
+#side .btn{margin-bottom:14px}
+.side-nav{display:flex;flex-direction:column;gap:2px}
+.side-nav a,.side-settings{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:var(--text);text-decoration:none;font-weight:500;position:relative}
+.side-nav a .ic,.side-settings .ic{color:var(--accent)}
+.side-nav a.on,.side-settings.on{background:var(--accent-t);color:var(--accent)}
+.side-nav .badge{position:static;margin-left:auto}
+.side-settings{margin-top:auto}
+
+/* Headers & sections */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:10px 0 14px}
+.ph h1{font-size:32px;line-height:1.1;font-weight:700;letter-spacing:-.022em;margin:0;overflow-wrap:anywhere}
+.ph .sub{color:var(--text2);font-size:15px;margin-top:5px}
+.ph-r{flex:none;display:flex;gap:8px;align-items:center}
+.sh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:26px 4px 8px}
+.sh h2{font-size:20px;font-weight:700;margin:0;letter-spacing:-.01em}
+.sh>span,.sh .aside{font-size:14px;color:var(--text2);display:flex;gap:14px;align-items:baseline}
+.sh.semh h2{font-size:14px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.uni-h{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;margin:26px 4px 0;letter-spacing:-.01em}
+.back{display:inline-flex;align-items:center;gap:2px;color:var(--accent);text-decoration:none;font-size:17px;margin:4px 0 0 -6px;min-height:40px}
+.eyebrow{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text2);font-weight:600;margin-bottom:6px}
+.lead{margin:0 4px 14px;font-size:15px}
+
+/* Cards & rows */
+.card{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.card.pad{padding:14px 16px}
+.card.pad p{margin:0 0 10px}
+.card.pad p:last-child{margin-bottom:0}
+.row{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px;text-align:left;text-decoration:none;color:inherit;position:relative;min-height:52px;cursor:pointer}
+.row+.row{border-top:.5px solid var(--line)}
+.row:active{background:var(--fill)}
+.row .t{font-size:17px;overflow-wrap:anywhere}
+.row.more{color:var(--accent);font-weight:600;font-size:15px;justify-content:center;min-height:44px}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px;font-size:14px;color:var(--text2);margin-top:2px}
+.meta>span{display:inline-flex;align-items:center;gap:4px}
+.chev{width:18px;height:18px;color:var(--text3);flex:none}
+.bar{width:4px;align-self:stretch;border-radius:2px;flex:none}
+.count{min-width:26px;height:24px;padding:0 8px;border-radius:12px;background:var(--fill);font-size:14px;font-weight:600;display:grid;place-items:center;color:var(--text2)}
+.empty{text-align:center;padding:36px 20px;color:var(--text2)}
+.empty p{margin:8px 0}
+.empty .btn{margin-top:10px}
+.empty-s{padding:4px 4px;color:var(--text2);font-size:15px}
+.tag{font-size:12px;font-weight:600;padding:1px 7px;border-radius:6px;background:var(--fill);color:var(--text2)}
+.tag.red{background:var(--danger-t);color:var(--danger)}
+.type{font-size:12px;font-weight:600;padding:1px 7px;border-radius:6px;background:var(--fill);color:var(--text2)}
+.type.exam{background:var(--warn-t);color:var(--warn)}
+.type.none{background:transparent;border:1px dashed var(--text3)}
+.due{font-size:14px;font-weight:600;color:var(--text2);white-space:nowrap;text-align:right;flex:none}
+.due.over{color:var(--danger)}
+.due.soon{color:var(--warn)}
+.item.done .t{text-decoration:line-through;color:var(--text2)}
+.status{flex:none;width:44px;height:44px;margin:-8px -6px -8px -10px;display:grid;place-items:center;color:var(--text3)}
+.status.s-doing{color:var(--accent)}
+.status.s-done{color:var(--good)}
+.st{width:26px;height:26px}
+.notes{white-space:pre-wrap;font-size:16px}
+details.past{margin-top:16px}
+details.past summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:15px;padding:8px 4px;list-style:none}
+details.past summary::-webkit-details-marker{display:none}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:14px 4px;font-size:14px;color:var(--text2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+
+/* Timetable rows */
+.occ .time{width:46px;text-align:right;font-variant-numeric:tabular-nums;flex:none;line-height:1.2}
+.occ .time b{display:block;font-size:17px;font-weight:600}
+.occ .time span{font-size:13px;color:var(--text2)}
+.occ.off .t{text-decoration:line-through;color:var(--text2)}
+.occ.past{opacity:.5}
+
+/* Hero (next class) */
+.hero{padding:16px 18px 16px 22px;position:relative;cursor:pointer}
+.hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c,var(--accent))}
+.hero-top{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
+.hero-w{font-size:17px;font-weight:700;color:var(--accent);margin-top:8px}
+.hero-t{font-size:25px;font-weight:700;letter-spacing:-.018em;margin:2px 0 0;line-height:1.2;overflow-wrap:anywhere}
+.hero-place{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;padding-top:12px;border-top:.5px solid var(--line);font-size:17px}
+.hero-place span{display:inline-flex;align-items:center;gap:6px}
+.hero-place .pl{font-weight:600}
+.hero-place .ic{color:var(--c,var(--accent))}
+.hero.emptyh .hero-t{font-size:17px;font-weight:500;color:var(--text2)}
+
+/* Banners */
+.banner{display:flex;gap:12px;align-items:flex-start;background:var(--accent-t);border-radius:14px;padding:12px 12px 12px 14px;margin-bottom:12px;font-size:15px}
+.banner>.ic{color:var(--accent);margin-top:1px}
+.banner.warn{background:var(--warn-t)}
+.banner.warn>.ic{color:var(--warn)}
+.banner b{display:block;font-size:16px;margin-bottom:2px}
+.banner .x{width:30px;height:30px;display:grid;place-items:center;color:var(--text2);margin:-4px -4px 0 0}
+.banner .btn{align-self:center}
+
+/* Onboarding */
+.onb{padding:18px 16px 10px}
+.onb h2{margin:0 0 4px;font-size:22px}
+.onb>p{margin:0 0 12px}
+.onb-step{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:.5px solid var(--line)}
+.onb-step .num{width:30px;height:30px;border-radius:50%;background:var(--fill);display:grid;place-items:center;font-weight:700;color:var(--text2);flex:none}
+.onb-step.done .num{background:var(--good);color:#fff}
+.onb-step .muted{font-size:14px}
+
+/* Buttons & form */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:12px;background:var(--fill);color:var(--accent);font-weight:600;font-size:16px;text-decoration:none;cursor:pointer;position:relative;white-space:nowrap}
+.btn .ic{width:20px;height:20px}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.danger{color:var(--danger);background:var(--danger-t)}
+.btn.small{min-height:34px;padding:0 12px;font-size:15px;border-radius:10px}
+.btn.block{display:flex;width:100%}
+.btn.lg{min-height:52px;font-size:17px}
+.btn:disabled{opacity:.45}
+.btn:active{opacity:.75}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.link{color:var(--accent);font-weight:600;font-size:15px;cursor:pointer;background:none;text-decoration:none}
+.icon-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--fill);color:var(--accent)}
+input,select,textarea{font:inherit;font-size:17px;color:var(--text);width:100%;background-color:var(--fill);border:0;border-radius:10px;padding:10px 12px;outline:none;-webkit-appearance:none;appearance:none;min-height:44px;margin:0}
+input[type=date],input[type=time]{display:block;line-height:24px}
+input::-webkit-date-and-time-value{text-align:left}
+textarea{resize:vertical;min-height:100px;line-height:1.4}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:18px;padding-right:32px}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 2px var(--accent)}
+input.big{font-size:21px;font-weight:600;background:transparent;padding:8px 2px;border-bottom:.5px solid var(--line);border-radius:0}
+input.big:focus{box-shadow:none;border-bottom-color:var(--accent)}
+.field{margin:14px 0}
+.field>label,.lbl{display:block;font-size:13px;font-weight:600;color:var(--text2);margin:0 0 6px 4px;text-transform:uppercase;letter-spacing:.04em}
+.lbl{margin:18px 4px 6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2 .field{margin:0}
+.grid2+.grid2,.field+.grid2,.grid2+.field{margin-top:14px}
+.with-x{position:relative}
+.with-x input{padding-right:40px}
+.with-x .x{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;color:var(--text3);display:grid;place-items:center}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--fill);border-radius:10px;padding:3px;gap:3px;margin:14px 0}
+.seg button{min-height:36px;border-radius:8px;font-size:14px;font-weight:600;color:var(--text2);text-align:center}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.chips{display:flex;gap:8px;margin:0}
+.chips.wrap{flex-wrap:wrap}
+.chips.scroll{overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px 4px}
+.chips.scroll::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 14px;border-radius:19px;background:var(--fill);font-size:15px;font-weight:500;white-space:nowrap;border:1.5px solid transparent;position:relative;cursor:pointer;color:var(--text)}
+.chip.on{background:var(--accent-t);border-color:var(--accent);color:var(--accent)}
+.chip input[type=date]{position:absolute;inset:0;opacity:0;width:100%;height:100%;min-height:0;padding:0;cursor:pointer}
+.colors{display:flex;flex-wrap:wrap;gap:14px;padding:4px}
+.color{width:36px;height:36px;border-radius:50%}
+.color.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--text)}
+.triage-b{display:flex;gap:10px;align-items:center;background:var(--warn-t);border-radius:12px;padding:10px 12px;font-size:14px;margin:4px 0 6px}
+.triage-b>.ic{color:var(--warn)}
+.mt{margin-top:24px}
+hr{border:0;border-top:.5px solid var(--line);margin:16px 0}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:16px}
+.kv+.kv{border-top:.5px solid var(--line)}
+.exc-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:.5px solid var(--line);font-size:15px}
+.exc-row .x{width:32px;height:32px;display:grid;place-items:center;color:var(--danger)}
+.occ-info{background:var(--card);border-radius:14px;padding:14px 16px;margin:6px 0 14px;box-shadow:var(--shadow);border-left:6px solid var(--c)}
+.occ-info h3{margin:0 0 4px;font-size:21px}
+.occ-info div{margin-top:4px;color:var(--text2)}
+.stack{display:flex;flex-direction:column;gap:8px}
+
+/* Filters */
+.filters{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 4px;padding:2px 16px 8px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.fsel{flex:none}
+.fsel select{width:auto;min-height:36px;padding:0 30px 0 14px;border-radius:18px;font-size:15px;font-weight:500}
+.fsel.on select{background-color:var(--accent-t);color:var(--accent)}
+
+/* Week strip (phone) */
+.seg-nav{display:flex;align-items:center;gap:6px}
+.seg-nav button{height:36px;min-width:36px;border-radius:18px;background:var(--fill);color:var(--accent);display:grid;place-items:center;padding:0 9px;font-weight:600;font-size:15px}
+.seg-nav .ic{width:20px;height:20px}
+.wstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;background:var(--card);border-radius:14px;padding:8px 4px 6px;box-shadow:var(--shadow)}
+.wd{display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0;text-align:center}
+.wd span{font-size:12px;color:var(--text2);font-weight:600}
+.wd b{font-size:18px;font-weight:600;width:36px;height:36px;display:grid;place-items:center;border-radius:50%}
+.wd.today b{color:var(--accent)}
+.wd.sel b{background:var(--accent);color:#fff}
+.wd i{width:5px;height:5px;border-radius:50%}
+.wd i.has{background:var(--text3)}
+
+/* Week grid (iPad) */
+.tg{padding-bottom:10px}
+.tg-head{display:grid;border-bottom:.5px solid var(--line)}
+.tg-head>div{padding:10px 4px;text-align:center;font-size:13px;color:var(--text2)}
+.tg-head span{display:block}
+.tg-head b{font-size:20px;color:var(--text);font-weight:600}
+.tg-head .today b{color:var(--accent)}
+.tg-body{display:grid;position:relative;margin-top:12px}
+.tg-hours{position:relative}
+.tg-hours span{position:absolute;right:8px;transform:translateY(-50%);font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums}
+.tg-col{position:relative;border-left:.5px solid var(--line);background-image:linear-gradient(var(--line) 1px,transparent 1px)}
+.tg-col.today{background-color:var(--today)}
+.tg-ev{position:absolute;overflow:hidden;text-align:left;padding:4px 6px 4px 7px;border-radius:7px;background:color-mix(in srgb,var(--c) 15%,var(--card));border-left:3px solid var(--c);font-size:12.5px;line-height:1.25;display:flex;flex-direction:column;gap:1px;z-index:1}
+.tg-ev b{font-size:13px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tg-ev span{color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tg-ev .x{color:var(--danger);font-weight:600}
+.tg-ev.off{opacity:.6}
+.tg-ev.off b{text-decoration:line-through}
+.tg .now{position:absolute;left:0;right:0;height:2px;background:var(--danger);z-index:2}
+
+/* Attachments */
+.att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px}
+.att{display:flex;flex-direction:column;gap:6px;text-align:left;min-width:0}
+.att img,.att .fi{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;background:var(--card);box-shadow:var(--shadow);display:block}
+.att .fi{display:grid;place-items:center;align-content:center;gap:4px;color:var(--text2)}
+.att .fi em{font-style:normal;font-size:12px;font-weight:700}
+.att .an{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)}
+.arow{display:flex;align-items:center;gap:12px;padding:8px 0}
+.arow+.arow{border-top:.5px solid var(--line)}
+.arow .th{width:46px;height:46px;border-radius:8px;object-fit:cover;background:var(--fill);display:grid;place-items:center;color:var(--text2);flex:none}
+.arow .nm{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arow .x{width:36px;height:36px;display:grid;place-items:center;color:var(--text3)}
+.busy{display:flex;gap:8px;align-items:center;color:var(--text2);font-size:15px;padding:8px 0}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--fill2);border-top-color:var(--accent);animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* Sheets */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0);transition:background .22s}
+.overlay.open{background:rgba(0,0,0,.36)}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:calc(100dvh - env(safe-area-inset-top) - 10px);display:flex;flex-direction:column;background:var(--bg);border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);box-shadow:0 -8px 30px rgba(0,0,0,.16)}
+.overlay.open .sheet{transform:none}
+.sheet-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 10px 6px;gap:8px;flex:none}
+.sheet-head::before{content:"";position:absolute;top:6px;left:50%;width:36px;height:5px;margin-left:-18px;border-radius:3px;background:var(--fill2)}
+.sheet-title{font-weight:700;font-size:17px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:56vw}
+.sheet-head .r{justify-self:end}
+.hbtn{color:var(--accent);font-size:17px;padding:6px 8px;min-height:38px;display:inline-flex;align-items:center}
+.hbtn.b{font-weight:700}
+.sheet-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:2px 16px calc(env(safe-area-inset-bottom) + 22px);overscroll-behavior:contain}
+.sheet.viewer{height:calc(100dvh - env(safe-area-inset-top) - 10px)}
+.sheet.viewer .sheet-body{padding:0;display:flex;flex-direction:column;flex:1}
+.viewer-img{display:block;width:100%;flex:1;min-height:0;object-fit:contain;background:#000}
+.viewer-pdf{display:block;width:100%;flex:1;min-height:60vh;border:0;background:#fff}
+.viewer-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px calc(env(safe-area-inset-bottom) + 12px);font-size:14px;color:var(--text2)}
+@media (min-width:700px){
+  .sheet{left:50%;right:auto;bottom:auto;top:50%;width:min(600px,92vw);max-height:88vh;border-radius:16px;transform:translate(-50%,-46%);opacity:0;transition:transform .22s,opacity .22s}
+  .overlay.open .sheet{transform:translate(-50%,-50%);opacity:1}
+  .sheet-head::before{display:none}
+  .sheet.viewer{width:min(960px,94vw);height:90vh}
+}
+
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 146px);transform:translate(-50%,16px);opacity:0;pointer-events:none;background:rgba(30,30,32,.95);color:#fff;padding:11px 16px;border-radius:12px;font-size:15px;font-weight:500;z-index:100;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.err{background:var(--danger)}
+@media (min-width:900px){#toast{bottom:32px}}
+.fatal{padding:40px 20px;text-align:center}
+</style>
+</head>
+<body>
+<div id="app">
+  <nav id="side" aria-label="Fő menü"></nav>
+  <main id="main"><div class="page"><p class="muted">Betöltés…</p></div></main>
+</div>
+<nav id="tabbar" aria-label="Fő menü"></nav>
+<button id="fab" data-act="capture" aria-label="Új tétel"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const APP_VERSION = '1.0.0';
+
+/* ============ Segédfüggvények ============ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => (self.crypto && crypto.randomUUID) ? crypto.randomUUID()
+  : 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+const pad = (n) => String(n).padStart(2, '0');
+const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseYmd = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parseYmd(s); d.setDate(d.getDate() + n); return ymd(d); };
+const today = () => ymd(new Date());
+const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+const weekday = (s) => { const w = parseYmd(s).getDay(); return w === 0 ? 7 : w; }; // hétfő = 1
+const mondayOf = (s) => addDays(s, 1 - weekday(s));
+const dayDiff = (a, b) => Math.round((parseYmd(b) - parseYmd(a)) / 864e5);
+const hm = (m) => `${Math.floor(m / 60)}:${pad(m % 60)}`;
+const toInputTime = (m) => (m == null ? '' : `${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
+const fromInputTime = (s) => { if (!s) return null; const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const WD = ['hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat', 'vasárnap'];
+const WDS = ['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V'];
+const MON = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'];
+const MONS = ['jan.', 'febr.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'];
+const fmtShort = (s) => { const d = parseYmd(s); return `${MONS[d.getMonth()]} ${d.getDate()}.`; };
+const fmtLong = (s) => { const d = parseYmd(s); const y = d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '. ' : ''; return `${y}${MON[d.getMonth()]} ${d.getDate()}., ${WD[weekday(s) - 1]}`; };
+function fmtRel(s) {
+  const k = dayDiff(today(), s);
+  if (k === 0) return 'ma'; if (k === 1) return 'holnap'; if (k === -1) return 'tegnap';
+  if (k > 1 && k < 7) return WD[weekday(s) - 1];
+  return fmtShort(s);
+}
+function fmtDur(m) { if (m < 60) return `${m} perc`; const h = Math.floor(m / 60), r = m % 60; return r ? `${h} óra ${r} perc` : `${h} óra`; }
+function fmtSize(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return Math.round(b / 1024) + ' kB'; return (b / 1048576).toFixed(1).replace('.', ',') + ' MB'; }
+const fmtTs = (ts) => ts ? new Date(ts).toLocaleString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '–';
+function daysAgo(ts) { const k = Math.floor((Date.now() - ts) / 864e5); return k <= 0 ? 'ma' : k === 1 ? 'tegnap' : `${k} napja`; }
+function ls(k) { try { return localStorage.getItem('unihub.' + k); } catch { return null; } }
+function lsSet(k, v) { try { localStorage.setItem('unihub.' + k, v); } catch {} }
+
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+
+const TYPES = [['beadando', 'Beadandó'], ['zh', 'ZH'], ['vizsga', 'Vizsga'], ['kollokvium', 'Kollokvium'], ['szobeli', 'Szóbeli'], ['olvasmany', 'Olvasmány'], ['egyeb', 'Egyéb']];
+const TYPE_LABEL = Object.fromEntries(TYPES);
+const EXAM_TYPES = ['zh', 'vizsga', 'kollokvium', 'szobeli'];
+const STATUSES = [['todo', 'Nincs elkezdve'], ['doing', 'Folyamatban'], ['done', 'Kész']];
+const COLORS = ['#2f6feb', '#e8590c', '#2b8a3e', '#ae3ec9', '#d6336c', '#0c8599', '#e67700', '#5c677d'];
+
+/* ============ Ikonok ============ */
+const I = {
+  home: '<path d="M3.5 10.5 12 4l8.5 6.5V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/>',
+  cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/>',
+  list: '<path d="M10 6.5h10M10 12h10M10 17.5h10"/><path d="m3.8 6.5 1.4 1.4L7.8 5.3M3.8 12l1.4 1.4 2.6-2.6M3.8 17.5l1.4 1.4 2.6-2.6"/>',
+  book: '<path d="M4.5 5.5A2.5 2.5 0 0 1 7 3h12.5v14.5H7a2.5 2.5 0 0 0-2.5 2.5z"/><path d="M4.5 20A1.5 1.5 0 0 0 6 21h13.5v-3.5"/>',
+  tray: '<path d="M3.5 13.5 6 5h12l2.5 8.5V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19z"/><path d="M3.5 13.5H8l1.2 2.5h5.6l1.2-2.5h4.5"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  clip: '<path d="m20 11.5-7.8 7.8a5 5 0 0 1-7.1-7.1l8.1-8.1a3.3 3.3 0 0 1 4.7 4.7l-8.1 8.1a1.7 1.7 0 0 1-2.4-2.4l7.4-7.4"/>',
+  chevL: '<path d="m14.5 5-7 7 7 7"/>',
+  chevR: '<path d="m9.5 5 7 7-7 7"/>',
+  camera: '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="12.5" r="3.3"/>',
+  file: '<path d="M6.5 3h7l5 5v12a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M13.5 3v5h5"/>',
+  x: '<path d="M6 6l12 12M18 6 6 18"/>',
+  share: '<path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M7 10.5H6a1.5 1.5 0 0 0-1.5 1.5v7A1.5 1.5 0 0 0 6 20.5h12a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5h-1"/>',
+  trash: '<path d="M4.5 7h15M10 11v6M14 11v6M6.5 7l1 13h9l1-13M9.5 7V4h5v3"/>',
+  alert: '<path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.3"/>',
+  download: '<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/>',
+  phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+};
+const ic = (n, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+function statusSvg(st) {
+  if (st === 'done') return '<svg viewBox="0 0 24 24" class="st" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m7.5 12.3 3 3 6-6.3" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  if (st === 'doing') return '<svg viewBox="0 0 24 24" class="st" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 5.2a6.8 6.8 0 0 1 0 13.6z" fill="currentColor"/></svg>';
+  return '<svg viewBox="0 0 24 24" class="st" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+}
+
+/* ============ Adatbázis (IndexedDB) ============ */
+// Minden adat és csatolmány ezen az eszközön, a böngésző adatbázisában tárolódik.
+const DB_NAME = 'unihub';
+const DB_VERSION = 1;
+const STORES = ['uni', 'sem', 'course', 'slot', 'exc', 'item', 'att', 'blob', 'meta'];
+const DATA_STORES = ['uni', 'sem', 'course', 'slot', 'exc', 'item', 'att'];
+const S = { uni: [], sem: [], course: [], slot: [], exc: [], item: [], att: [], meta: {} };
+let db;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const r = indexedDB.open(DB_NAME, DB_VERSION);
+    r.onupgradeneeded = () => {
+      const d = r.result;
+      for (const s of STORES) if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { keyPath: s === 'meta' ? 'key' : 'id' });
+    };
+    r.onsuccess = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.onblocked = () => reject(new Error('blocked'));
+  });
+}
+const reqP = (r) => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const txDone = (t) => new Promise((res, rej) => { t.oncomplete = () => res(); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error('abort')); });
+
+async function loadAll() {
+  const t = db.transaction(STORES.filter((s) => s !== 'blob'));
+  for (const s of DATA_STORES) S[s] = await reqP(t.objectStore(s).getAll());
+  const metas = await reqP(t.objectStore('meta').getAll());
+  S.meta = Object.fromEntries(metas.map((m) => [m.key, m.value]));
+}
+
+// Egy tranzakcióban írunk: vagy minden művelet megtörténik, vagy egyik sem.
+async function commit(ops) {
+  const stores = [...new Set(ops.map((o) => o.store))];
+  const t = db.transaction(stores, 'readwrite');
+  const done = txDone(t);
+  try {
+    for (const o of ops) { const st = t.objectStore(o.store); if (o.put) st.put(o.put); else st.delete(o.del); }
+    await done;
+  } catch (err) {
+    try { t.abort(); } catch {}
+    console.error(err);
+    toast(err && err.name === 'QuotaExceededError' ? 'Nem sikerült menteni: betelt a tárhely.' : 'Nem sikerült menteni. Próbáld újra.', true);
+    throw err;
+  }
+  for (const o of ops) {
+    if (o.store === 'blob') continue;
+    if (o.store === 'meta') { if (o.put) S.meta[o.put.key] = o.put.value; else delete S.meta[o.del]; continue; }
+    const arr = S[o.store];
+    const id = o.put ? o.put.id : o.del;
+    const i = arr.findIndex((x) => x.id === id);
+    if (o.put) { if (i >= 0) arr[i] = o.put; else arr.push(o.put); } else if (i >= 0) arr.splice(i, 1);
+  }
+  ensurePersist();
+  window.dispatchEvent(new Event('unihub:data'));
+}
+const setMeta = (key, value) => commit([{ store: 'meta', put: { key, value } }]);
+async function getBlob(id) {
+  const r = await reqP(db.transaction('blob').objectStore('blob').get(id));
+  return r ? new Blob([r.data], { type: r.type || 'application/octet-stream' }) : null;
+}
+let persistAsked = false;
+function ensurePersist() {
+  if (persistAsked) return; persistAsked = true;
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
+}
+
+/* ============ Lekérdezések ============ */
+const byId = (store, id) => (id ? S[store].find((x) => x.id === id) : undefined);
+const semOf = (c) => c && byId('sem', c.semesterId);
+const uniOfSem = (s) => s && byId('uni', s.universityId);
+const uniOfCourse = (c) => uniOfSem(semOf(c));
+const colorOf = (c) => (uniOfCourse(c) || {}).color || '#8e8e93';
+const semActive = (s, d = today()) => !!s && (!s.start || d >= s.start) && (!s.end || d <= s.end);
+const sortByName = (a, b) => (a.name || '').localeCompare(b.name || '', 'hu');
+const isOpen = (it) => it.status !== 'done';
+const placeOf = (o) => [o.building, o.room].filter(Boolean).join(' · ');
+function itemSort(a, b) {
+  if (a.date && b.date) { if (a.date !== b.date) return a.date < b.date ? -1 : 1; return (a.time ?? 1e4) - (b.time ?? 1e4); }
+  if (a.date) return -1; if (b.date) return 1;
+  return (b.createdAt || 0) - (a.createdAt || 0);
+}
+const missingOf = (it) => [!it.courseId && 'tantárgy', !it.type && 'típus', !it.title && 'cím'].filter(Boolean);
+
+// Egy adott nap órái, a kivételekkel együtt.
+function occurrencesOn(date) {
+  const wd = weekday(date), out = [];
+  for (const sl of S.slot) {
+    if (sl.weekday !== wd) continue;
+    const c = byId('course', sl.courseId); if (!c) continue;
+    if (!semActive(semOf(c), date)) continue;
+    const ex = S.exc.find((e) => e.slotId === sl.id && e.date === date);
+    const base = { slot: sl, course: c, date, start: sl.start, end: sl.end, building: sl.building, room: sl.room };
+    if (ex && ex.kind === 'cancelled') out.push({ ...base, cancelled: true, exc: ex });
+    else if (ex && ex.kind === 'moved') out.push({ ...base, movedAway: true, exc: ex });
+    else out.push(base);
+  }
+  for (const e of S.exc) {
+    if (e.kind !== 'moved' || e.newDate !== date) continue;
+    const sl = byId('slot', e.slotId); if (!sl) continue;
+    const c = byId('course', sl.courseId); if (!c) continue;
+    out.push({ slot: sl, course: c, date, start: e.newStart ?? sl.start, end: e.newEnd ?? sl.end, building: e.newBuilding || sl.building, room: e.newRoom || sl.room, moved: true, exc: e });
+  }
+  return out.sort((a, b) => a.start - b.start || sortByName(a.course, b.course));
+}
+const realOcc = (o) => !o.cancelled && !o.movedAway;
+function findNextClass(filterCourse) {
+  const t = today(), nm = nowMin();
+  for (let k = 0; k <= 14; k++) {
+    const d = addDays(t, k);
+    const oc = occurrencesOn(d).filter((o) => realOcc(o) && (k > 0 || o.end > nm) && (!filterCourse || o.course.id === filterCourse));
+    if (oc.length) return oc[0];
+  }
+  return null;
+}
+
+/* ============ Kis UI-elemek ============ */
+let toastT;
+function toast(msg, err = false) {
+  const el = $('#toast'); el.textContent = msg; el.className = 'show' + (err ? ' err' : '');
+  clearTimeout(toastT); toastT = setTimeout(() => { el.className = ''; }, err ? 6000 : 2600);
+}
+const pageHead = (title, { sub = '', right = '' } = {}) =>
+  `<header class="ph"><div class="grow"><h1>${esc(title)}</h1>${sub ? `<div class="sub">${sub}</div>` : ''}</div>${right ? `<div class="ph-r">${right}</div>` : ''}</header>`;
+const sectionHead = (title, aside = '', cls = '') => `<div class="sh ${cls}"><h2>${esc(title)}</h2>${aside ? `<span class="aside">${aside}</span>` : ''}</div>`;
+
+function dueInfo(it) {
+  if (!it.date) return null;
+  const k = dayDiff(today(), it.date);
+  const time = it.time != null ? ' ' + hm(it.time) : '';
+  const open = isOpen(it);
+  if (k < 0) return { text: open ? (k === -1 ? 'Tegnap lejárt' : `${-k} napja lejárt`) : fmtShort(it.date), cls: open ? 'over' : '' };
+  if (k === 0) return { text: 'Ma' + time, cls: open ? 'soon' : '' };
+  if (k === 1) return { text: 'Holnap' + time, cls: open ? 'soon' : '' };
+  if (k < 7) return { text: cap(WD[weekday(it.date) - 1]) + time, cls: '' };
+  return { text: fmtShort(it.date) + time, cls: '' };
+}
+function itemRow(it, { showCourse = true, triage = false } = {}) {
+  const c = byId('course', it.courseId);
+  const attN = S.att.filter((a) => a.itemId === it.id).length;
+  const due = dueInfo(it);
+  const typeTag = it.type ? `<span class="type ${EXAM_TYPES.includes(it.type) ? 'exam' : ''}">${TYPE_LABEL[it.type]}</span>` : '<span class="type none">Típus nélkül</span>';
+  const stLabel = STATUSES.find((s) => s[0] === it.status)[1];
+  const missing = triage ? missingOf(it) : [];
+  return `<div class="row item ${it.status === 'done' ? 'done' : ''}" role="button" tabindex="0" data-act="openItem" data-id="${it.id}">
+    <button class="status s-${it.status}" data-act="cycleStatus" data-id="${it.id}" aria-label="Állapot: ${stLabel}. Koppints a váltáshoz.">${statusSvg(it.status)}</button>
+    <div class="grow"><div class="t">${it.title ? esc(it.title) : '<i class="muted">Cím nélkül</i>'}</div>
+      <div class="meta">${typeTag}${showCourse && c ? `<span><i class="dot" style="background:${colorOf(c)}"></i>${esc(c.name)}</span>` : ''}${attN ? `<span>${ic('clip', 'sm')}${attN}</span>` : ''}${missing.length ? `<span>Hiányzik: ${missing.join(', ')}</span>` : ''}</div></div>
+    ${due ? `<div class="due ${due.cls}">${due.text}</div>` : ''}
+  </div>`;
+}
+function occRow(o) {
+  const t = today();
+  const past = o.date === t && o.end <= nowMin() && realOcc(o);
+  const place = placeOf(o);
+  let note = '';
+  if (o.cancelled) note = '<span class="tag red">Elmarad</span>';
+  else if (o.movedAway) note = `<span class="tag">Áthelyezve: ${fmtShort(o.exc.newDate)} ${hm(o.exc.newStart ?? o.slot.start)}</span>`;
+  else if (o.moved) note = '<span class="tag">Áthelyezett óra</span>';
+  else if (o.date === t && o.start <= nowMin() && o.end > nowMin()) note = '<span class="tag red">Most</span>';
+  return `<button class="row occ ${realOcc(o) ? '' : 'off'} ${past ? 'past' : ''}" data-act="openOcc" data-slot="${o.slot.id}" data-date="${o.date}" data-moved="${o.moved ? 1 : ''}">
+    <div class="time"><b>${hm(o.start)}</b><span>${hm(o.end)}</span></div>
+    <i class="bar" style="background:${colorOf(o.course)}"></i>
+    <div class="grow"><div class="t">${esc(o.course.name)}</div><div class="meta">${place ? `<span>${ic('pin', 'sm')}${esc(place)}</span>` : '<span>Nincs helyszín megadva</span>'}${note}</div></div>
+  </button>`;
+}
+function attTile(a) {
+  const ext = (a.name.split('.').pop() || '').toUpperCase().slice(0, 5);
+  return `<button class="att" data-act="openAtt" data-id="${a.id}">${a.thumb ? `<img src="${a.thumb}" alt="">` : `<span class="fi">${ic('file')}<em>${a.kind === 'pdf' ? 'PDF' : esc(ext)}</em></span>`}<span class="an">${esc(a.name)}</span></button>`;
+}
+
+/* ============ Navigáció ============ */
+const NAV = [['attekintes', 'Áttekintés', 'Áttekintés', 'home'], ['orarend', 'Órarend', 'Órarend', 'cal'], ['feladatok', 'Feladatok', 'Feladatok', 'list'], ['targyak', 'Tantárgyak', 'Tantárgyak', 'book'], ['rendezes', 'Rendezésre vár', 'Rendezés', 'tray']];
+function route() { const h = location.hash.replace(/^#\/?/, '') || 'attekintes'; const [name, arg] = h.split('/'); return { name: name || 'attekintes', arg }; }
+const triageCount = () => S.item.filter((i) => i.triage).length;
+function renderNav() {
+  const r = route().name;
+  const active = r === 'targy' ? 'targyak' : r;
+  const tc = triageCount();
+  $('#tabbar').innerHTML = NAV.map(([k, , short, icn]) => `<a href="#/${k}" class="tab ${active === k ? 'on' : ''}" ${active === k ? 'aria-current="page"' : ''}>${ic(icn)}<span>${short}</span>${k === 'rendezes' && tc ? `<b class="badge">${tc}</b>` : ''}</a>`).join('');
+  $('#side').innerHTML = `<div class="brand"><img src="icon-192.png" alt=""><span>UniHub</span></div>
+    <button class="btn primary block" data-act="capture">${ic('plus')} Új tétel</button>
+    <div class="side-nav">${NAV.map(([k, full, , icn]) => `<a href="#/${k}" class="${active === k ? 'on' : ''}">${ic(icn)}<span>${full}</span>${k === 'rendezes' && tc ? `<b class="badge">${tc}</b>` : ''}</a>`).join('')}</div>
+    <a href="#/beallitasok" class="side-settings ${r === 'beallitasok' ? 'on' : ''}">${ic('gear')}<span>Beállítások</span></a>`;
+}
+function renderMain() {
+  const { name, arg } = route();
+  let html;
+  switch (name) {
+    case 'orarend': html = viewTimetable(); break;
+    case 'feladatok': html = viewTasks(); break;
+    case 'targyak': html = viewCourses(); break;
+    case 'targy': html = viewCourse(arg); break;
+    case 'rendezes': html = viewTriage(); break;
+    case 'beallitasok': html = viewSettings(); break;
+    default: html = viewOverview();
+  }
+  $('#main').innerHTML = `<div class="page">${html}</div>`;
+  renderNav();
+  if (name === 'beallitasok') fillStorageInfo();
+}
+
+/* ============ Áttekintés ============ */
+function banners() {
+  let h = '';
+  if (isIOS && !isStandalone && !ls('hideInstall')) {
+    h += `<div class="banner">${ic('phone')}<div class="grow"><b>Tedd ki a főképernyőre</b>Safariban koppints a Megosztás gombra ${ic('share', 'sm')}, majd válaszd a <b style="display:inline">Főképernyőhöz adás</b> lehetőséget. Így teljes képernyőn fut, és az adatok tartósan megmaradnak.</div><button class="x" data-act="hideInstall" aria-label="Elrejtés">${ic('x')}</button></div>`;
+  }
+  const lb = S.meta.lastBackup;
+  if ((S.item.length || S.course.length) && (!lb || Date.now() - lb > 7 * 864e5)) {
+    h += `<div class="banner warn">${ic('alert')}<div class="grow"><b>${lb ? `Utolsó mentés: ${daysAgo(lb)}` : 'Még nem készült mentés'}</b>Az adataid csak ezen az eszközön vannak. Ments a Fájlokba vagy az iCloud Drive-ra.</div><a class="btn small" href="#/beallitasok">Mentés</a></div>`;
+  }
+  return h;
+}
+function onboarding() {
+  const steps = [
+    [S.uni.length, 'Egyetemek', 'Mindkét egyetem neve és színe.', 'newUni'],
+    [S.sem.length, 'Aktuális félév', 'Egyetemenként, kezdő és záró dátummal.', 'newSem'],
+    [S.course.length, 'Tantárgyak', 'Az órákat a tantárgy adatlapján adod meg.', 'newCourse'],
+  ];
+  return `<div class="card onb"><h2>Kezdjük!</h2><p class="muted">Három rövid lépés, utána minden a helyén lesz.</p>${steps.map(([done, t, d, act], i) => {
+    const enabled = i === 0 || steps[i - 1][0];
+    return `<div class="onb-step ${done ? 'done' : ''}"><span class="num">${done ? '✓' : i + 1}</span><div class="grow"><b>${t}</b><div class="muted">${d}</div></div>${enabled ? `<button class="btn small ${done ? '' : 'primary'}" data-act="${act}">${done ? 'Még egy' : 'Hozzáadás'}</button>` : ''}</div>`;
+  }).join('')}</div>`;
+}
+function nextClassCard() {
+  const n = findNextClass();
+  if (!n) return `<div class="card hero emptyh"><div class="hero-top"><span>Következő óra</span></div><div class="hero-t">Nincs óra a következő két hétben.</div></div>`;
+  const t = today(), nm = nowMin(), u = uniOfCourse(n.course);
+  const running = n.date === t && n.start <= nm;
+  let when;
+  if (n.date === t) when = running ? `Most zajlik · még ${fmtDur(n.end - nm)}` : (n.start - nm <= 180 ? `${fmtDur(n.start - nm)} múlva` : `Ma ${hm(n.start)}`);
+  else when = `${cap(fmtRel(n.date))} ${hm(n.start)}`;
+  const place = placeOf(n);
+  return `<div class="card hero" style="--c:${colorOf(n.course)}" role="button" tabindex="0" data-act="openOcc" data-slot="${n.slot.id}" data-date="${n.date}" data-moved="${n.moved ? 1 : ''}">
+    <div class="hero-top"><span>${running ? 'Most' : 'Következő óra'}</span><span>${esc(u ? u.name : '')}</span></div>
+    <div class="hero-w">${when}</div>
+    <div class="hero-t">${esc(n.course.name)}</div>
+    <div class="hero-place"><span class="pl">${ic('pin')}${place ? esc(place) : '<span class="muted">Nincs helyszín</span>'}</span><span>${ic('clock')}${hm(n.start)}–${hm(n.end)}</span></div>
+  </div>`;
+}
+function viewOverview() {
+  const t = today();
+  let h = pageHead('Áttekintés', { sub: cap(fmtLong(t)) });
+  h += banners();
+  if (!S.course.length) return h + onboarding();
+  h += nextClassCard();
+
+  const todays = occurrencesOn(t);
+  h += sectionHead('Mai órák', todays.length ? `${todays.filter(realOcc).length} óra` : '');
+  h += todays.length ? `<div class="card">${todays.map(occRow).join('')}</div>` : '<div class="empty-s">Ma nincs órád.</div>';
+  for (let k = 1; k <= 7; k++) {
+    const d = addDays(t, k), oc = occurrencesOn(d);
+    if (oc.length) { h += sectionHead(cap(fmtRel(d)), fmtShort(d)); h += `<div class="card">${oc.map(occRow).join('')}</div>`; break; }
+  }
+
+  const lim = addDays(t, 7);
+  const urgent = S.item.filter((i) => isOpen(i) && !i.triage && i.date && i.date <= lim).sort(itemSort);
+  h += sectionHead('Sürgős', `<a class="link" href="#/feladatok">Összes feladat</a>`);
+  h += urgent.length ? `<div class="card">${urgent.map((i) => itemRow(i)).join('')}</div>` : '<div class="empty-s">Nincs határidő a következő 7 napban.</div>';
+
+  const nodate = S.item.filter((i) => isOpen(i) && !i.date && !i.triage).sort(itemSort);
+  if (nodate.length) {
+    h += sectionHead('Dátum nélkül', `${nodate.length} nyitott`);
+    h += `<div class="card">${nodate.slice(0, 5).map((i) => itemRow(i)).join('')}${nodate.length > 5 ? `<a class="row more" href="#/feladatok" data-act="filterNodate">Mind a ${nodate.length} megjelenítése</a>` : ''}</div>`;
+  }
+  const tri = S.item.filter((i) => i.triage).sort((a, b) => b.createdAt - a.createdAt);
+  if (tri.length) {
+    h += sectionHead('Rendezésre vár', `${tri.length} tétel`);
+    h += `<div class="card">${tri.slice(0, 3).map((i) => itemRow(i, { triage: true })).join('')}${tri.length > 3 ? `<a class="row more" href="#/rendezes">Összes (${tri.length})</a>` : ''}</div>`;
+  }
+  return h;
+}
+
+/* ============ Órarend ============ */
+let ttSel = null;
+const isWide = () => window.innerWidth >= 760;
+function viewTimetable() {
+  const t = today();
+  if (!ttSel) ttSel = t;
+  const mon = mondayOf(ttSel), sun = addDays(mon, 6);
+  const sameMonth = parseYmd(mon).getMonth() === parseYmd(sun).getMonth();
+  const range = `${fmtShort(mon)} – ${sameMonth ? parseYmd(sun).getDate() + '.' : fmtShort(sun)}${mon === mondayOf(t) ? ' · ez a hét' : ''}`;
+  const nav = `<div class="seg-nav"><button data-act="ttPrev" aria-label="Előző hét">${ic('chevL')}</button><button data-act="ttToday">Ma</button><button data-act="ttNext" aria-label="Következő hét">${ic('chevR')}</button></div>`;
+  let h = pageHead('Órarend', { sub: range, right: nav });
+  if (!S.slot.length) {
+    return h + `<div class="empty">${ic('cal', 'xl')}<p>Még nincs óra felvéve.</p><p class="muted">Órát a tantárgy adatlapján adhatsz hozzá, a „+ Óra” gombbal.</p><a class="btn primary" href="#/targyak">Tantárgyak</a></div>`;
+  }
+  h += isWide() ? weekGrid(mon) : dayView(mon);
+  if (S.uni.length > 1) h += `<div class="legend">${[...S.uni].sort(sortByName).map((u) => `<span><i class="dot" style="background:${u.color}"></i>${esc(u.name)}</span>`).join('')}</div>`;
+  return h;
+}
+function dayView(mon) {
+  const t = today();
+  let strip = '<div class="wstrip" id="wstrip">';
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(mon, i);
+    const n = occurrencesOn(d).filter(realOcc).length;
+    strip += `<button class="wd ${d === ttSel ? 'sel' : ''} ${d === t ? 'today' : ''}" data-act="ttDay" data-date="${d}" aria-label="${WD[i]}, ${fmtShort(d)}"><span>${WDS[i]}</span><b>${parseYmd(d).getDate()}</b><i class="${n ? 'has' : ''}"></i></button>`;
+  }
+  strip += '</div>';
+  const oc = occurrencesOn(ttSel);
+  return strip + sectionHead(cap(WD[weekday(ttSel) - 1]), fmtShort(ttSel) + (ttSel === t ? ' · ma' : '')) +
+    (oc.length ? `<div class="card">${oc.map(occRow).join('')}</div>` : '<div class="empty-s">Nincs óra ezen a napon.</div>');
+}
+function weekGrid(mon) {
+  const t = today();
+  const days = [0, 1, 2, 3, 4, 5, 6].map((i) => addDays(mon, i));
+  const occ = days.map((d) => occurrencesOn(d));
+  const cols = days.map((d, i) => i).filter((i) => i < 5 || occ[i].length);
+  const all = cols.flatMap((i) => occ[i]);
+  let a = 8 * 60, b = 16 * 60;
+  if (all.length) { a = Math.min(...all.map((o) => o.start)); b = Math.max(...all.map((o) => o.end)); }
+  const h0 = Math.max(0, Math.floor(a / 60)), h1 = Math.min(24, Math.max(h0 + 4, Math.ceil(b / 60)));
+  const PPM = 1.15, H = (h1 - h0) * 60 * PPM;
+  const tmpl = `grid-template-columns:52px repeat(${cols.length},minmax(0,1fr))`;
+  let head = `<div class="tg-head" style="${tmpl}"><div></div>${cols.map((i) => `<div class="${days[i] === t ? 'today' : ''}"><span>${WD[i]}</span><b>${parseYmd(days[i]).getDate()}</b></div>`).join('')}</div>`;
+  let hours = '';
+  for (let x = h0; x <= h1; x++) hours += `<span style="top:${(x - h0) * 60 * PPM}px">${x}:00</span>`;
+  let body = `<div class="tg-body" style="${tmpl};height:${H}px"><div class="tg-hours">${hours}</div>`;
+  for (const i of cols) {
+    const d = days[i];
+    // Csak az egymással átfedő órák osztoznak a szélességen.
+    const placed = [];
+    let cluster = [], lanes = [], clusterEnd = -1;
+    const flush = () => { for (const p of cluster) p.L = lanes.length; placed.push(...cluster); cluster = []; lanes = []; };
+    for (const o of occ[i]) {
+      if (cluster.length && o.start >= clusterEnd) flush();
+      let l = lanes.findIndex((end) => end <= o.start);
+      if (l < 0) { l = lanes.length; lanes.push(0); }
+      lanes[l] = o.end; clusterEnd = Math.max(cluster.length ? clusterEnd : 0, o.end);
+      cluster.push({ o, l });
+    }
+    flush();
+    body += `<div class="tg-col ${d === t ? 'today' : ''}" style="background-size:100% ${60 * PPM}px">`;
+    for (const { o, l, L } of placed) {
+      const place = placeOf(o);
+      body += `<button class="tg-ev ${realOcc(o) ? '' : 'off'}" style="top:${(o.start - h0 * 60) * PPM + 1}px;height:${Math.max(24, (o.end - o.start) * PPM - 3)}px;left:calc(${(l * 100) / L}% + 2px);width:calc(${100 / L}% - 4px);--c:${colorOf(o.course)}" data-act="openOcc" data-slot="${o.slot.id}" data-date="${d}" data-moved="${o.moved ? 1 : ''}"><b>${esc(o.course.name)}</b><span>${hm(o.start)}–${hm(o.end)}</span>${place ? `<span>${esc(place)}</span>` : ''}${o.cancelled ? '<span class="x">Elmarad</span>' : ''}${o.movedAway ? '<span class="x">Áthelyezve</span>' : ''}</button>`;
+    }
+    if (d === t) { const nm = nowMin(); if (nm >= h0 * 60 && nm <= h1 * 60) body += `<i class="now" style="top:${(nm - h0 * 60) * PPM}px"></i>`; }
+    body += '</div>';
+  }
+  body += '</div>';
+  return `<div class="card tg">${head}${body}</div>`;
+}
+
+/* ============ Feladatok ============ */
+const DEFAULT_F = { uni: '', course: '', type: '', status: 'open', period: '' };
+let F = (() => { try { return { ...DEFAULT_F, ...JSON.parse(ls('filters') || '{}') }; } catch { return { ...DEFAULT_F }; } })();
+const saveFilters = () => lsSet('filters', JSON.stringify(F));
+function viewTasks() {
+  const t = today();
+  const list = S.item.filter((it) => {
+    const c = byId('course', it.courseId);
+    if (F.uni) { const u = c && uniOfCourse(c); if (!u || u.id !== F.uni) return false; }
+    if (F.course && it.courseId !== F.course) return false;
+    if (F.type && it.type !== F.type) return false;
+    if (F.status === 'open' && !isOpen(it)) return false;
+    if (['todo', 'doing', 'done'].includes(F.status) && it.status !== F.status) return false;
+    if (F.period) {
+      if (F.period === 'nodate') { if (it.date) return false; }
+      else {
+        if (!it.date) return false;
+        const k = dayDiff(t, it.date);
+        if (F.period === 'over' && !(k < 0 && isOpen(it))) return false;
+        if (F.period === 'today' && k !== 0) return false;
+        if (F.period === 'week' && !(k >= 0 && k <= 7)) return false;
+        if (F.period === 'month' && !(k >= 0 && k <= 30)) return false;
+      }
+    }
+    return true;
+  });
+  const sel = (key, opts, defaultVal = '') => `<label class="fsel ${F[key] !== defaultVal ? 'on' : ''}"><select data-filter="${key}" aria-label="Szűrő">${opts.map(([v, l]) => `<option value="${esc(v)}" ${F[key] === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
+  const courseOpts = S.course.filter((c) => !F.uni || (uniOfCourse(c) || {}).id === F.uni).sort(sortByName).map((c) => [c.id, c.name]);
+  const anyFilter = JSON.stringify(F) !== JSON.stringify(DEFAULT_F);
+  let h = pageHead('Feladatok', { sub: `${list.length} tétel` });
+  h += `<div class="filters">
+    ${sel('status', [['open', 'Nyitott'], ['todo', 'Nincs elkezdve'], ['doing', 'Folyamatban'], ['done', 'Kész'], ['all', 'Minden állapot']], 'open')}
+    ${sel('period', [['', 'Bármikor'], ['over', 'Lejárt'], ['today', 'Ma'], ['week', '7 napon belül'], ['month', '30 napon belül'], ['nodate', 'Dátum nélkül']])}
+    ${S.uni.length > 1 ? sel('uni', [['', 'Minden egyetem'], ...[...S.uni].sort(sortByName).map((u) => [u.id, u.name])]) : ''}
+    ${sel('course', [['', 'Minden tantárgy'], ...courseOpts])}
+    ${sel('type', [['', 'Minden típus'], ...TYPES])}
+    ${anyFilter ? `<button class="btn small" data-act="resetFilters">Alaphelyzet</button>` : ''}
+  </div>`;
+  if (!list.length) {
+    return h + `<div class="empty">${ic('list', 'xl')}<p>${S.item.length ? 'Nincs a szűrésnek megfelelő tétel.' : 'Még nincs tétel.'}</p>${S.item.length ? '' : `<button class="btn primary" data-act="capture">${ic('plus')} Új tétel</button>`}</div>`;
+  }
+  const sun = addDays(mondayOf(t), 6);
+  const bucket = (it) => {
+    if (!isOpen(it)) return 'done';
+    if (!it.date) return 'nodate';
+    const k = dayDiff(t, it.date);
+    if (k < 0) return 'over'; if (k === 0) return 'today'; if (k === 1) return 'tomorrow';
+    if (it.date <= sun) return 'week'; return 'later';
+  };
+  const groups = [['over', 'Lejárt'], ['today', 'Ma'], ['tomorrow', 'Holnap'], ['week', 'Ezen a héten'], ['later', 'Később'], ['nodate', 'Dátum nélkül'], ['done', 'Kész']];
+  for (const [key, label] of groups) {
+    const g = list.filter((it) => bucket(it) === key);
+    if (!g.length) continue;
+    g.sort(key === 'done' ? (a, b) => (b.updatedAt || 0) - (a.updatedAt || 0) : itemSort);
+    h += sectionHead(label, String(g.length));
+    h += `<div class="card">${g.map((i) => itemRow(i)).join('')}</div>`;
+  }
+  return h;
+}
+
+/* ============ Tantárgyak ============ */
+function viewCourses() {
+  let h = pageHead('Tantárgyak', { right: `<a class="icon-btn" href="#/beallitasok" aria-label="Beállítások">${ic('gear')}</a>` });
+  if (!S.course.length) return h + onboarding();
+  const t = today();
+  for (const u of [...S.uni].sort(sortByName)) {
+    const sems = S.sem.filter((s) => s.universityId === u.id).sort((a, b) => (b.start || '').localeCompare(a.start || ''));
+    h += `<div class="uni-h"><i class="dot lg" style="background:${u.color}"></i>${esc(u.name)}</div>`;
+    if (!sems.length) { h += `<div class="empty-s" style="margin-top:8px">Nincs félév. <button class="link" data-act="newSem" data-uni="${u.id}">Félév hozzáadása</button></div>`; continue; }
+    const cur = sems.filter((s) => !s.end || s.end >= t), past = sems.filter((s) => s.end && s.end < t);
+    for (const s of cur) h += semBlock(s, u);
+    if (past.length) h += `<details class="past"><summary>Korábbi félévek (${past.length})</summary>${past.map((s) => semBlock(s, u)).join('')}</details>`;
+  }
+  h += `<div class="btn-row mt"><button class="btn" data-act="newCourse">${ic('plus')} Új tantárgy</button><button class="btn" data-act="newSem">${ic('plus')} Új félév</button></div>`;
+  return h;
+}
+function semBlock(s, u) {
+  const cs = S.course.filter((c) => c.semesterId === s.id).sort(sortByName);
+  const dates = s.start && s.end ? `${fmtShort(s.start)} – ${fmtShort(s.end)}` : '';
+  let h = sectionHead(s.name, dates, 'semh');
+  if (!cs.length) return h + `<div class="empty-s">Nincs tantárgy. <button class="link" data-act="newCourse" data-sem="${s.id}">Hozzáadás</button></div>`;
+  return h + `<div class="card">${cs.map((c) => {
+    const open = S.item.filter((i) => i.courseId === c.id && isOpen(i)).length;
+    const nx = semActive(s) ? findNextClass(c.id) : null;
+    const meta = [c.teacher && esc(c.teacher), nx && `következő: ${fmtRel(nx.date)} ${hm(nx.start)}`].filter(Boolean).join(' · ');
+    return `<a class="row" href="#/targy/${c.id}"><i class="bar" style="background:${u.color}"></i><div class="grow"><div class="t">${esc(c.name)}</div>${meta ? `<div class="meta">${meta}</div>` : ''}</div>${open ? `<span class="count" title="Nyitott tételek">${open}</span>` : ''}${ic('chevR', 'chev')}</a>`;
+  }).join('')}</div>`;
+}
+function viewCourse(id) {
+  const c = byId('course', id);
+  if (!c) return `<a class="back" href="#/targyak">${ic('chevL')} Tantárgyak</a>` + pageHead('A tantárgy nem található');
+  const s = semOf(c), u = uniOfCourse(c);
+  let h = `<a class="back" href="#/targyak">${ic('chevL')} Tantárgyak</a>`;
+  h += `<header class="ph"><div class="grow"><div class="eyebrow"><i class="dot" style="background:${colorOf(c)}"></i>${esc(u ? u.name : '')} · ${esc(s ? s.name : '')}</div><h1>${esc(c.name)}</h1>${c.teacher ? `<div class="sub">${esc(c.teacher)}</div>` : ''}</div><div class="ph-r"><button class="btn small" data-act="editCourse" data-id="${c.id}">Szerkesztés</button></div></header>`;
+  h += `<button class="btn primary" data-act="capture" data-course="${c.id}">${ic('plus')} Új tétel ehhez a tárgyhoz</button>`;
+
+  const slots = S.slot.filter((x) => x.courseId === c.id).sort((a, b) => a.weekday - b.weekday || a.start - b.start);
+  h += sectionHead('Órák', `<button class="link" data-act="newSlot" data-course="${c.id}">+ Óra</button>`);
+  h += slots.length ? `<div class="card">${slots.map((sl) => {
+    const place = placeOf(sl), exN = S.exc.filter((e) => e.slotId === sl.id).length;
+    return `<button class="row" data-act="editSlot" data-id="${sl.id}"><div class="grow"><div class="t">${cap(WD[sl.weekday - 1])} ${hm(sl.start)}–${hm(sl.end)}</div><div class="meta">${place ? `<span>${ic('pin', 'sm')}${esc(place)}</span>` : '<span>Nincs helyszín</span>'}${exN ? `<span>${exN} kivétel</span>` : ''}</div></div>${ic('chevR', 'chev')}</button>`;
+  }).join('')}</div>` : '<div class="empty-s">Még nincs óra felvéve. Add meg a heti órarendi alkalmakat.</div>';
+
+  const its = S.item.filter((i) => i.courseId === c.id);
+  const open = its.filter(isOpen);
+  const groups = [['Számonkérések', EXAM_TYPES], ['Feladatok', ['beadando', 'egyeb', null]], ['Olvasmányok', ['olvasmany']]];
+  if (!open.length) h += sectionHead('Tételek') + '<div class="empty-s">Nincs nyitott tétel.</div>';
+  for (const [title, types] of groups) {
+    const g = open.filter((i) => types.includes(i.type ?? null)).sort(itemSort);
+    if (!g.length) continue;
+    h += sectionHead(title, String(g.length));
+    h += `<div class="card">${g.map((i) => itemRow(i, { showCourse: false })).join('')}</div>`;
+  }
+  const done = its.filter((i) => !isOpen(i)).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  if (done.length) h += `<details class="past"><summary>Kész tételek (${done.length})</summary><div class="card">${done.map((i) => itemRow(i, { showCourse: false })).join('')}</div></details>`;
+
+  h += sectionHead('Követelmények és megjegyzések', `<button class="link" data-act="editCourse" data-id="${c.id}">Szerkesztés</button>`);
+  h += c.notes ? `<div class="card pad notes">${esc(c.notes)}</div>` : '<div class="empty-s">Nincs megadva.</div>';
+
+  const courseAtts = S.att.filter((a) => a.courseId === c.id && !a.itemId);
+  const itemIds = new Set(its.map((i) => i.id));
+  const itemAtts = S.att.filter((a) => a.itemId && itemIds.has(a.itemId));
+  const all = [...courseAtts, ...itemAtts].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  h += sectionHead('Csatolmányok', `<label class="link">+ Fotó<input type="file" accept="image/*" multiple hidden data-upload="${c.id}"></label><label class="link">+ Fájl<input type="file" multiple hidden data-upload="${c.id}"></label>`);
+  h += all.length ? `<div class="att-grid">${all.map(attTile).join('')}</div>` : '<div class="empty-s">Nincs csatolmány. Itt a tárgy egészéhez tartozó anyagokat (pl. követelményrendszer PDF) tárolhatod.</div>';
+  return h;
+}
+
+/* ============ Rendezésre vár ============ */
+function viewTriage() {
+  const list = S.item.filter((i) => i.triage).sort((a, b) => b.createdAt - a.createdAt);
+  let h = pageHead('Rendezésre vár', { sub: list.length ? `${list.length} tétel` : '' });
+  h += '<p class="muted lead">Gyorsan mentett tételek, amelyekből hiányzik a tantárgy, a típus vagy a cím. Koppints rájuk a kiegészítéshez.</p>';
+  h += list.length ? `<div class="card">${list.map((i) => itemRow(i, { triage: true })).join('')}</div>` : `<div class="empty">${ic('tray', 'xl')}<p>Minden rendezve.</p></div>`;
+  return h;
+}
+
+/* ============ Beállítások ============ */
+function viewSettings() {
+  let h = `<a class="back" href="#/targyak">${ic('chevL')} Tantárgyak</a>` + pageHead('Beállítások');
+  h += sectionHead('Egyetemek', `<button class="link" data-act="newUni">+ Új</button>`);
+  h += S.uni.length ? `<div class="card">${[...S.uni].sort(sortByName).map((u) => `<button class="row" data-act="editUni" data-id="${u.id}"><i class="dot lg" style="background:${u.color}"></i><div class="grow t">${esc(u.name)}</div><span class="muted">${S.sem.filter((s) => s.universityId === u.id).length} félév</span>${ic('chevR', 'chev')}</button>`).join('')}</div>` : '<div class="empty-s">Még nincs egyetem.</div>';
+  h += sectionHead('Félévek', S.uni.length ? `<button class="link" data-act="newSem">+ Új</button>` : '');
+  const sems = [...S.sem].sort((a, b) => sortByName(uniOfSem(a) || {}, uniOfSem(b) || {}) || (b.start || '').localeCompare(a.start || ''));
+  h += sems.length ? `<div class="card">${sems.map((s) => { const u = uniOfSem(s); return `<button class="row" data-act="editSem" data-id="${s.id}"><i class="dot lg" style="background:${u ? u.color : '#888'}"></i><div class="grow"><div class="t">${esc(s.name)}</div><div class="meta">${esc(u ? u.name : '')}${s.start && s.end ? ` · ${fmtShort(s.start)} – ${fmtShort(s.end)}` : ''}${semActive(s) ? ' · aktuális' : ''}</div></div>${ic('chevR', 'chev')}</button>`; }).join('')}</div>` : '<div class="empty-s">Még nincs félév.</div>';
+
+  const lb = S.meta.lastBackup;
+  h += sectionHead('Adatmentés');
+  h += `<div class="card pad">
+    <p>Az adataid csak ezen az eszközön tárolódnak. A mentés egyetlen .zip fájl, amelyben minden adat és csatolmány benne van. Mentsd a <b>Fájlokba</b>, lehetőleg az <b>iCloud Drive</b>-ra.</p>
+    <p class="muted">Utolsó mentés: ${lb ? fmtTs(lb) : 'még nem volt'}</p>
+    <div class="btn-row" id="backup-area"><button class="btn primary" data-act="makeBackup">${ic('download')} Mentés készítése</button></div>
+    <hr>
+    <p>Visszaállítás, vagy az adatok áthozatala másik eszközről (pl. iPhone → iPad). <b>A jelenlegi adatok helyére kerül.</b></p>
+    <label class="btn">Visszaállítás mentésből<input type="file" accept=".zip,application/zip" hidden data-restore></label>
+  </div>`;
+  h += sectionHead('Tárhely');
+  h += '<div class="card pad" id="storage-info"><span class="muted">Számolás…</span></div>';
+  h += sectionHead('Névjegy');
+  h += `<div class="card pad"><p><b>UniHub</b> ${APP_VERSION}</p><p class="muted">${isStandalone ? 'A főképernyőről fut.' : 'Böngészőből fut. A tartós tároláshoz tedd ki a főképernyőre (Megosztás → Főképernyőhöz adás).'}</p></div>`;
+  return h;
+}
+async function fillStorageInfo() {
+  let persisted = null, est = null;
+  try { persisted = await navigator.storage.persisted(); } catch {}
+  try { est = await navigator.storage.estimate(); } catch {}
+  const el = $('#storage-info'); if (!el) return;
+  const attSize = S.att.reduce((s, a) => s + (a.size || 0), 0);
+  el.innerHTML = `<div class="kv"><span>Tételek</span><b>${S.item.length}</b></div>
+    <div class="kv"><span>Csatolmányok</span><b>${S.att.length} db · ${fmtSize(attSize)}</b></div>
+    ${est && est.usage != null ? `<div class="kv"><span>Felhasznált tárhely</span><b>${fmtSize(est.usage)}</b></div>` : ''}
+    <div class="kv"><span>Tartós tárolás</span><b>${persisted === true ? 'Engedélyezve' : persisted === false ? 'Nincs engedélyezve' : 'Ismeretlen'}</b></div>`;
+}
+
+/* ============ Lapok (sheet) ============ */
+const sheetStack = [];
+function openSheet({ title = '', left = '', right = '', body = '', actions = {}, modal = false, cls = '', onClose }) {
+  const el = document.createElement('div');
+  el.className = 'overlay';
+  el.innerHTML = `<div class="sheet ${cls}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-head"><div>${left}</div><div class="sheet-title">${esc(title)}</div><div class="r">${right}</div></div><div class="sheet-body">${body}</div></div>`;
+  document.body.appendChild(el);
+  const s = { el, root: el.querySelector('.sheet'), actions, onClose };
+  sheetStack.push(s);
+  el.addEventListener('click', (e) => {
+    if (e.target === el) { if (!modal) closeSheet(s); return; }
+    const b = e.target.closest('[data-sact]');
+    if (b && actions[b.dataset.sact]) { e.preventDefault(); actions[b.dataset.sact](b, e); }
+  });
+  document.body.classList.add('noscroll');
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('open')));
+  return s;
+}
+function closeSheet(s) {
+  const target = s || sheetStack[sheetStack.length - 1];
+  const i = sheetStack.indexOf(target);
+  if (i < 0) return;
+  sheetStack.splice(i, 1);
+  try { target.onClose && target.onClose(); } catch (e) { console.error(e); }
+  target.el.classList.remove('open');
+  setTimeout(() => target.el.remove(), 260);
+  if (!sheetStack.length) document.body.classList.remove('noscroll');
+}
+function formSheet({ title, body, onSave, onDelete, actions = {}, deleteLabel = 'Törlés' }) {
+  let s;
+  const acts = {
+    ...actions,
+    cancel: () => closeSheet(s),
+    save: async (b) => { b.disabled = true; try { const ok = await onSave(s.root); if (ok !== false) closeSheet(s); } catch (e) { console.error(e); } finally { b.disabled = false; } },
+    delete: async () => { if (await onDelete()) closeSheet(s); },
+  };
+  s = openSheet({
+    title, modal: true, actions: acts,
+    left: '<button class="hbtn" data-sact="cancel">Mégse</button>',
+    right: '<button class="hbtn b" data-sact="save">Mentés</button>',
+    body: body + (onDelete ? `<button class="btn danger block mt" data-sact="delete">${ic('trash')} ${deleteLabel}</button>` : ''),
+  });
+  return s;
+}
+
+/* ============ Szerkesztők ============ */
+function deleteOps(kind, id) {
+  const ops = [], n = { item: 0, att: 0, slot: 0, course: 0, sem: 0 };
+  const delAtt = (a) => { ops.push({ store: 'att', del: a.id }, { store: 'blob', del: a.id }); n.att++; };
+  const delItem = (it) => { S.att.filter((a) => a.itemId === it.id).forEach(delAtt); ops.push({ store: 'item', del: it.id }); n.item++; };
+  const delSlot = (sl) => { S.exc.filter((e) => e.slotId === sl.id).forEach((e) => ops.push({ store: 'exc', del: e.id })); ops.push({ store: 'slot', del: sl.id }); n.slot++; };
+  const delCourse = (c) => { S.item.filter((i) => i.courseId === c.id).forEach(delItem); S.slot.filter((x) => x.courseId === c.id).forEach(delSlot); S.att.filter((a) => a.courseId === c.id && !a.itemId).forEach(delAtt); ops.push({ store: 'course', del: c.id }); n.course++; };
+  const delSem = (s) => { S.course.filter((c) => c.semesterId === s.id).forEach(delCourse); ops.push({ store: 'sem', del: s.id }); n.sem++; };
+  const delUni = (u) => { S.sem.filter((s) => s.universityId === u.id).forEach(delSem); ops.push({ store: 'uni', del: u.id }); };
+  const obj = byId(kind, id);
+  ({ uni: delUni, sem: delSem, course: delCourse, slot: delSlot, item: delItem })[kind](obj);
+  return { ops, n };
+}
+async function confirmDelete(kind, id, label) {
+  const { ops, n } = deleteOps(kind, id);
+  const parts = [];
+  if (kind !== 'sem' && n.sem) parts.push(`${n.sem} félév`);
+  if (kind !== 'course' && n.course) parts.push(`${n.course} tantárgy`);
+  if (kind !== 'slot' && n.slot) parts.push(`${n.slot} órarendi alkalom`);
+  if (kind !== 'item' && n.item) parts.push(`${n.item} tétel`);
+  if (n.att) parts.push(`${n.att} csatolmány`);
+  const msg = `Biztosan törlöd: ${label}?` + (parts.length ? `\n\nVele együtt törlődik: ${parts.join(', ')}.` : '') + '\n\nEz nem vonható vissza.';
+  if (!confirm(msg)) return false;
+  await commit(ops);
+  if (route().name === 'targy' && !byId('course', route().arg)) location.hash = '#/targyak';
+  renderMain();
+  toast('Törölve');
+  return true;
+}
+
+function editUni(id) {
+  const u = id ? byId('uni', id) : null;
+  let color = u ? u.color : COLORS[S.uni.length % COLORS.length];
+  const body = `<div class="field"><label for="f-name">Név</label><input id="f-name" value="${esc(u ? u.name : '')}" placeholder="pl. ELTE" autocomplete="off"></div>
+    <div class="field"><label>Szín</label><div class="colors">${COLORS.map((c) => `<button class="color ${c === color ? 'on' : ''}" style="background:${c}" data-sact="color" data-c="${c}" aria-label="Szín ${c}"></button>`).join('')}</div></div>`;
+  formSheet({
+    title: u ? 'Egyetem' : 'Új egyetem', body,
+    actions: { color: (b) => { color = b.dataset.c; $$('.color', b.parentNode).forEach((x) => x.classList.toggle('on', x === b)); } },
+    onSave: async (root) => {
+      const name = $('#f-name', root).value.trim();
+      if (!name) { toast('Add meg az egyetem nevét.'); return false; }
+      await commit([{ store: 'uni', put: { ...(u || { id: uid(), createdAt: Date.now() }), name, color } }]);
+      renderMain();
+    },
+    onDelete: u && (() => confirmDelete('uni', u.id, u.name)),
+  });
+}
+function semDefaults() {
+  const d = new Date(), y = d.getFullYear(), m = d.getMonth() + 1;
+  if (m >= 8) return { name: `${y}/${String(y + 1).slice(2)} ősz`, start: `${y}-09-01`, end: `${y + 1}-01-31` };
+  if (m === 1) return { name: `${y - 1}/${String(y).slice(2)} ősz`, start: `${y - 1}-09-01`, end: `${y}-01-31` };
+  return { name: `${y - 1}/${String(y).slice(2)} tavasz`, start: `${y}-02-01`, end: `${y}-06-30` };
+}
+function editSem(id, uniId) {
+  if (!S.uni.length) { toast('Előbb vegyél fel egy egyetemet.'); editUni(); return; }
+  const s = id ? byId('sem', id) : null;
+  const def = semDefaults();
+  const preUni = s ? s.universityId : (uniId || ([...S.uni].sort(sortByName).find((u) => !S.sem.some((x) => x.universityId === u.id && semActive(x))) || S.uni[0]).id);
+  const body = `<div class="field"><label for="f-uni">Egyetem</label><select id="f-uni">${[...S.uni].sort(sortByName).map((u) => `<option value="${u.id}" ${u.id === preUni ? 'selected' : ''}>${esc(u.name)}</option>`).join('')}</select></div>
+    <div class="field"><label for="f-name">Megnevezés</label><input id="f-name" value="${esc(s ? s.name : def.name)}" autocomplete="off"></div>
+    <div class="grid2"><div class="field"><label for="f-start">Kezdete</label><input type="date" id="f-start" value="${s ? s.start || '' : def.start}"></div><div class="field"><label for="f-end">Vége</label><input type="date" id="f-end" value="${s ? s.end || '' : def.end}"></div></div>
+    <p class="muted small">Az órák csak a félév kezdete és vége között jelennek meg. A vizsgaidőszakot is számold bele, ha szeretnéd.</p>`;
+  formSheet({
+    title: s ? 'Félév' : 'Új félév', body,
+    onSave: async (root) => {
+      const name = $('#f-name', root).value.trim(), start = $('#f-start', root).value || null, end = $('#f-end', root).value || null;
+      if (!name) { toast('Add meg a félév nevét.'); return false; }
+      if (start && end && start > end) { toast('A félév vége nem lehet a kezdete előtt.'); return false; }
+      await commit([{ store: 'sem', put: { ...(s || { id: uid(), createdAt: Date.now() }), universityId: $('#f-uni', root).value, name, start, end } }]);
+      renderMain();
+    },
+    onDelete: s && (() => confirmDelete('sem', s.id, s.name)),
+  });
+}
+function semesterOptions(selected) {
+  let h = '';
+  for (const u of [...S.uni].sort(sortByName)) {
+    const sems = S.sem.filter((x) => x.universityId === u.id).sort((a, b) => (b.start || '').localeCompare(a.start || ''));
+    if (!sems.length) continue;
+    h += `<optgroup label="${esc(u.name)}">${sems.map((x) => `<option value="${x.id}" ${x.id === selected ? 'selected' : ''}>${esc(u.name)} · ${esc(x.name)}</option>`).join('')}</optgroup>`;
+  }
+  return h;
+}
+function editCourse(id, semId) {
+  if (!S.sem.length) { toast('Előbb vegyél fel egy félévet.'); editSem(); return; }
+  const c = id ? byId('course', id) : null;
+  const pre = c ? c.semesterId : (semId || (S.sem.find((x) => semActive(x)) || S.sem[0]).id);
+  const body = `<div class="field"><label for="f-sem">Egyetem és félév</label><select id="f-sem">${semesterOptions(pre)}</select></div>
+    <div class="field"><label for="f-name">Tantárgy neve</label><input id="f-name" value="${esc(c ? c.name : '')}" placeholder="pl. Római jog" autocomplete="off"></div>
+    <div class="field"><label for="f-teacher">Oktató (nem kötelező)</label><input id="f-teacher" value="${esc(c ? c.teacher || '' : '')}" autocomplete="off"></div>
+    <div class="field"><label for="f-notes">Követelmények és megjegyzések</label><textarea id="f-notes" rows="6" placeholder="Pl. 2 ZH + szóbeli vizsga, katalógus, jelenléti szabályok…">${esc(c ? c.notes || '' : '')}</textarea></div>`;
+  formSheet({
+    title: c ? 'Tantárgy' : 'Új tantárgy', body,
+    onSave: async (root) => {
+      const name = $('#f-name', root).value.trim();
+      if (!name) { toast('Add meg a tantárgy nevét.'); return false; }
+      const obj = { ...(c || { id: uid(), createdAt: Date.now() }), semesterId: $('#f-sem', root).value, name, teacher: $('#f-teacher', root).value.trim(), notes: $('#f-notes', root).value };
+      await commit([{ store: 'course', put: obj }]);
+      if (!c) location.hash = `#/targy/${obj.id}`;
+      renderMain();
+    },
+    onDelete: c && (() => confirmDelete('course', c.id, c.name)),
+  });
+}
+function editSlot(id, courseId) {
+  const sl = id ? byId('slot', id) : null;
+  const c = byId('course', sl ? sl.courseId : courseId);
+  if (!c) return;
+  const prev = S.slot.filter((x) => x.courseId === c.id).pop();
+  const v = sl || { weekday: prev ? prev.weekday : 1, start: prev ? prev.start : 600, end: prev ? prev.end : 690, building: prev ? prev.building : '', room: prev ? prev.room : '' };
+  const excs = sl ? S.exc.filter((e) => e.slotId === sl.id).sort((a, b) => a.date.localeCompare(b.date)) : [];
+  const excHtml = () => excs.length ? excs.map((e) => `<div class="exc-row"><div class="grow">${fmtShort(e.date)} · ${e.kind === 'cancelled' ? 'Elmarad' : `Áthelyezve → ${fmtShort(e.newDate)} ${hm(e.newStart ?? sl.start)}${e.newRoom ? ', ' + esc(e.newRoom) : ''}`}</div><button class="x" data-sact="delExc" data-id="${e.id}" aria-label="Kivétel törlése">${ic('x')}</button></div>`).join('') : '<p class="muted small">Nincs kivétel. Elmaradó vagy áthelyezett órát az órarendben, az órára koppintva jelölhetsz.</p>';
+  const body = `<p class="muted" style="margin:0 4px"><i class="dot" style="background:${colorOf(c)}"></i> ${esc(c.name)}</p>
+    <div class="field"><label for="f-wd">Hét napja</label><select id="f-wd">${WD.map((w, i) => `<option value="${i + 1}" ${v.weekday === i + 1 ? 'selected' : ''}>${cap(w)}</option>`).join('')}</select></div>
+    <div class="grid2"><div class="field"><label for="f-start">Kezdés</label><input type="time" id="f-start" value="${toInputTime(v.start)}"></div><div class="field"><label for="f-end">Vége</label><input type="time" id="f-end" value="${toInputTime(v.end)}"></div></div>
+    <div class="grid2"><div class="field"><label for="f-bld">Épület</label><input id="f-bld" value="${esc(v.building || '')}" placeholder="pl. Q épület" autocomplete="off"></div><div class="field"><label for="f-room">Terem</label><input id="f-room" value="${esc(v.room || '')}" placeholder="pl. QBF13" autocomplete="off"></div></div>
+    <p class="muted small">Hetente ismétlődik, a félév kezdete és vége között.</p>
+    ${sl ? `<div class="field"><label>Kivételek</label><div id="exc-list">${excHtml()}</div></div>` : ''}`;
+  formSheet({
+    title: sl ? 'Óra' : 'Új óra', body, deleteLabel: 'Óra törlése',
+    actions: {
+      delExc: async (b) => {
+        await commit([{ store: 'exc', del: b.dataset.id }]);
+        excs.splice(excs.findIndex((e) => e.id === b.dataset.id), 1);
+        $('#exc-list').innerHTML = excHtml(); renderMain();
+      },
+    },
+    onSave: async (root) => {
+      const start = fromInputTime($('#f-start', root).value), end = fromInputTime($('#f-end', root).value);
+      if (start == null || end == null) { toast('Add meg a kezdést és a véget.'); return false; }
+      if (end <= start) { toast('Az óra vége legyen a kezdés után.'); return false; }
+      await commit([{ store: 'slot', put: { ...(sl || { id: uid(), courseId: c.id, createdAt: Date.now() }), weekday: Number($('#f-wd', root).value), start, end, building: $('#f-bld', root).value.trim(), room: $('#f-room', root).value.trim() } }]);
+      renderMain();
+    },
+    onDelete: sl && (() => confirmDelete('slot', sl.id, `${c.name}, ${WD[sl.weekday - 1]} ${hm(sl.start)}`)),
+  });
+}
+function openOcc(slotId, date, movedTarget) {
+  const sl = byId('slot', slotId); if (!sl) return;
+  const c = byId('course', sl.courseId); if (!c) return;
+  const exc = movedTarget ? S.exc.find((e) => e.slotId === slotId && e.kind === 'moved' && e.newDate === date) : S.exc.find((e) => e.slotId === slotId && e.date === date);
+  const start = movedTarget && exc ? exc.newStart ?? sl.start : sl.start;
+  const end = movedTarget && exc ? exc.newEnd ?? sl.end : sl.end;
+  const place = movedTarget && exc ? placeOf({ building: exc.newBuilding || sl.building, room: exc.newRoom || sl.room }) : placeOf(sl);
+  let status = '';
+  if (exc && exc.kind === 'cancelled') status = '<div><span class="tag red">Ezen a napon elmarad</span></div>';
+  else if (exc && !movedTarget) status = `<div><span class="tag">Áthelyezve: ${fmtShort(exc.newDate)} ${hm(exc.newStart ?? sl.start)}</span></div>`;
+  else if (exc) status = `<div><span class="tag">Áthelyezett óra (eredetileg ${fmtShort(exc.date)})</span></div>`;
+  const body = `<div class="occ-info" style="--c:${colorOf(c)}"><h3>${esc(c.name)}</h3><div>${cap(fmtLong(date))}</div><div>${ic('clock', 'sm')} ${hm(start)}–${hm(end)}</div><div>${ic('pin', 'sm')} ${place ? esc(place) : 'Nincs helyszín megadva'}</div>${status}</div>
+    <div class="stack">
+      ${exc ? `<button class="btn" data-sact="restore">${movedTarget ? 'Áthelyezés visszavonása' : 'Visszaállítás az eredeti időpontra'}</button>`
+    : `<button class="btn" data-sact="cancelDay">Elmarad ezen a napon</button><button class="btn" data-sact="showMove">Áthelyezés másik időpontra…</button>`}
+      <div id="move-form" hidden>
+        <div class="grid2"><div class="field"><label for="m-date">Új dátum</label><input type="date" id="m-date" value="${date}"></div><div class="field"><label for="m-room">Terem</label><input id="m-room" value="${esc(sl.room || '')}"></div></div>
+        <div class="grid2"><div class="field"><label for="m-start">Kezdés</label><input type="time" id="m-start" value="${toInputTime(sl.start)}"></div><div class="field"><label for="m-end">Vége</label><input type="time" id="m-end" value="${toInputTime(sl.end)}"></div></div>
+        <button class="btn primary block mt" data-sact="saveMove">Áthelyezés mentése</button>
+      </div>
+      <hr>
+      <button class="btn" data-sact="openCourse">Tantárgy megnyitása</button>
+      <button class="btn" data-sact="editSlot">Óra szerkesztése (minden hét)</button>
+    </div>`;
+  let s;
+  s = openSheet({
+    title: 'Óra', body,
+    right: '<button class="hbtn b" data-sact="close">Kész</button>',
+    actions: {
+      close: () => closeSheet(s),
+      cancelDay: async () => { await commit([{ store: 'exc', put: { id: uid(), slotId, date, kind: 'cancelled', createdAt: Date.now() } }]); closeSheet(s); renderMain(); toast('Elmaradónak jelölve'); },
+      restore: async () => { await commit([{ store: 'exc', del: exc.id }]); closeSheet(s); renderMain(); toast('Visszaállítva'); },
+      showMove: (b) => { b.hidden = true; $('#move-form', s.root).hidden = false; },
+      saveMove: async () => {
+        const nd = $('#m-date', s.root).value, ns = fromInputTime($('#m-start', s.root).value), ne = fromInputTime($('#m-end', s.root).value);
+        if (!nd || ns == null || ne == null || ne <= ns) { toast('Adj meg érvényes dátumot és időpontot.'); return; }
+        const room = $('#m-room', s.root).value.trim();
+        await commit([{ store: 'exc', put: { id: uid(), slotId, date, kind: 'moved', newDate: nd, newStart: ns, newEnd: ne, newRoom: room !== (sl.room || '') ? room : '', createdAt: Date.now() } }]);
+        closeSheet(s); renderMain(); toast('Áthelyezve');
+      },
+      openCourse: () => { closeSheet(s); location.hash = `#/targy/${c.id}`; },
+      editSlot: () => { closeSheet(s); editSlot(sl.id); },
+    },
+  });
+}
+
+/* ============ Csatolmányok ============ */
+const MAX_WARN = 50 * 1024 * 1024;
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const u = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { URL.revokeObjectURL(u); res(im); };
+    im.onerror = () => { URL.revokeObjectURL(u); rej(new Error('A kép nem olvasható')); };
+    im.src = u;
+  });
+}
+// Fotók: átméretezés legfeljebb 2000 px-re és JPEG-tömörítés, hogy kíméljük a tárhelyet.
+async function processImage(file) {
+  const img = await loadImage(file);
+  const w = img.naturalWidth, h = img.naturalHeight;
+  const sc = Math.min(1, 2000 / Math.max(w, h));
+  let blob = file, converted = false;
+  if (!(file.type === 'image/jpeg' && sc === 1 && file.size < 2.5e6)) {
+    const c = document.createElement('canvas');
+    c.width = Math.round(w * sc); c.height = Math.round(h * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const out = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.82));
+    if (out && out.size < file.size) { blob = out; converted = true; }
+  }
+  const tc = document.createElement('canvas');
+  const ts = Math.min(1, 240 / Math.max(w, h));
+  tc.width = Math.max(1, Math.round(w * ts)); tc.height = Math.max(1, Math.round(h * ts));
+  tc.getContext('2d').drawImage(img, 0, 0, tc.width, tc.height);
+  return { blob, converted, thumb: tc.toDataURL('image/jpeg', 0.7) };
+}
+async function prepareFile(file) {
+  let blob = file, name = file.name || 'fajl', type = file.type || '';
+  const isPdf = type === 'application/pdf' || /\.pdf$/i.test(name);
+  let kind = type.startsWith('image/') ? 'photo' : isPdf ? 'pdf' : 'doc';
+  let thumb = null;
+  if (kind === 'photo') {
+    try {
+      const r = await processImage(file);
+      thumb = r.thumb;
+      if (r.converted) { blob = r.blob; type = 'image/jpeg'; name = name.replace(/\.[a-z0-9]+$/i, '') + '.jpg'; }
+    } catch { kind = 'doc'; }
+  }
+  if (isPdf) type = 'application/pdf';
+  if (blob.size > MAX_WARN && !confirm(`„${name}” mérete ${fmtSize(blob.size)}. Ez sok helyet foglal ezen az eszközön és a mentésekben. Mégis csatolod?`)) return null;
+  const data = await blob.arrayBuffer();
+  return { meta: { id: uid(), name, type: type || 'application/octet-stream', size: blob.size, kind, thumb, createdAt: Date.now() }, data };
+}
+async function prepareFiles(files) {
+  const out = [];
+  for (const f of files) { try { const p = await prepareFile(f); if (p) out.push(p); } catch (e) { console.error(e); toast(`Nem sikerült beolvasni: ${f.name}`, true); } }
+  return out;
+}
+const attOps = (prepared, link) => prepared.flatMap((p) => [
+  { store: 'att', put: { ...p.meta, itemId: link.itemId || null, courseId: link.itemId ? null : link.courseId || null } },
+  { store: 'blob', put: { id: p.meta.id, type: p.meta.type, data: p.data } },
+]);
+async function addAttachments(files, link) {
+  if (!files.length) return;
+  toast('Feldolgozás…');
+  const prepared = await prepareFiles(files);
+  if (!prepared.length) return;
+  await commit(attOps(prepared, link));
+  toast(prepared.length > 1 ? `${prepared.length} csatolmány mentve` : 'Csatolmány mentve');
+}
+function shareOrDownload(blob, filename) {
+  const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
+  if (navigator.canShare && navigator.share) {
+    let can = false;
+    try { can = navigator.canShare({ files: [file] }); } catch {}
+    if (can) {
+      return navigator.share({ files: [file] }).then(() => true).catch((err) => {
+        if (err && err.name === 'AbortError') return false;
+        download(blob, filename); return true;
+      });
+    }
+  }
+  download(blob, filename);
+  return Promise.resolve(true);
+}
+function download(blob, name) {
+  const u = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = u; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 60000);
+}
+async function openViewer(attId) {
+  const a = byId('att', attId); if (!a) return;
+  const blob = await getBlob(attId);
+  if (!blob) { toast('A fájl tartalma nem található.', true); return; }
+  const url = URL.createObjectURL(blob);
+  let content;
+  if (a.kind === 'photo') content = `<img class="viewer-img" src="${url}" alt="${esc(a.name)}">`;
+  else if (a.kind === 'pdf') content = `<iframe class="viewer-pdf" src="${url}" title="${esc(a.name)}"></iframe>`;
+  else content = `<div class="empty" style="flex:1">${ic('file', 'xl')}<p><b>${esc(a.name)}</b></p><p class="muted">Ez a fájltípus itt nem jeleníthető meg. A megosztás gombbal megnyithatod egy másik alkalmazásban, vagy elmentheted a Fájlokba.</p></div>`;
+  const owner = a.itemId ? byId('item', a.itemId) : null;
+  let s;
+  s = openSheet({
+    title: a.name, cls: 'viewer',
+    left: '<button class="hbtn" data-sact="close">Bezárás</button>',
+    right: `<button class="hbtn" data-sact="share" aria-label="Megosztás vagy mentés">${ic('share')}</button>`,
+    body: `${content}${a.kind === 'pdf' ? '<p class="muted small" style="margin:8px 16px 0">Ha a PDF nem jelenik meg teljesen, a megosztás gombbal megnyithatod a Könyvekben vagy a Fájlokban.</p>' : ''}<div class="viewer-meta"><span>${fmtSize(a.size)}${owner ? ` · ${esc(owner.title || 'Cím nélküli tétel')}` : ''}</span><span style="display:flex;gap:8px">${owner ? `<button class="btn small" data-sact="owner">Tétel</button>` : ''}<button class="btn small danger" data-sact="del">${ic('trash')} Törlés</button></span></div>`,
+    actions: {
+      close: () => closeSheet(s),
+      share: () => shareOrDownload(blob, a.name),
+      owner: () => { closeSheet(s); openItem(owner.id); },
+      del: async () => {
+        if (!confirm(`Törlöd ezt a csatolmányt?\n„${a.name}”`)) return;
+        await commit([{ store: 'att', del: a.id }, { store: 'blob', del: a.id }]);
+        closeSheet(s); renderMain(); toast('Csatolmány törölve');
+      },
+    },
+    onClose: () => setTimeout(() => URL.revokeObjectURL(url), 1500),
+  });
+}
+
+/* ============ Tétel adatlap ============ */
+function courseOptions(selected) {
+  let h = '<option value="">— Nincs megadva —</option>';
+  for (const u of [...S.uni].sort(sortByName)) {
+    for (const s of S.sem.filter((x) => x.universityId === u.id).sort((a, b) => (b.start || '').localeCompare(a.start || ''))) {
+      const cs = S.course.filter((c) => c.semesterId === s.id).sort(sortByName);
+      if (!cs.length) continue;
+      h += `<optgroup label="${esc(u.name)} · ${esc(s.name)}">${cs.map((c) => `<option value="${c.id}" ${c.id === selected ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</optgroup>`;
+    }
+  }
+  return h;
+}
+function openItem(id) {
+  const it0 = byId('item', id); if (!it0) return;
+  const body = `<div class="triage-b" ${it0.triage ? '' : 'hidden'}>${ic('tray')}<div class="grow">Rendezésre vár. Add meg a tantárgyat, a típust és a címet, vagy jelöld rendezettnek.</div><button class="btn small" data-sact="untriage">Rendezve</button></div>
+    <input class="big" data-f="title" value="${esc(it0.title)}" placeholder="Cím" autocomplete="off" aria-label="Cím">
+    <div class="seg" role="group" aria-label="Állapot">${STATUSES.map(([k, l]) => `<button data-sact="status" data-v="${k}" class="${it0.status === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <div class="grid2"><div class="field"><label for="i-course">Tantárgy</label><select id="i-course" data-f="courseId">${courseOptions(it0.courseId)}</select></div>
+      <div class="field"><label for="i-type">Típus</label><select id="i-type" data-f="type"><option value="">— Nincs megadva —</option>${TYPES.map(([k, l]) => `<option value="${k}" ${it0.type === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
+    <div class="grid2"><div class="field"><label for="i-date">Dátum</label><div class="with-x"><input type="date" id="i-date" data-f="date" value="${it0.date || ''}"><button class="x" data-sact="clearDate" aria-label="Dátum törlése">${ic('x')}</button></div></div>
+      <div class="field"><label for="i-time">Időpont</label><div class="with-x"><input type="time" id="i-time" data-f="time" value="${toInputTime(it0.time)}"><button class="x" data-sact="clearTime" aria-label="Időpont törlése">${ic('x')}</button></div></div></div>
+    <div class="field"><label for="i-loc">Helyszín</label><input id="i-loc" data-f="location" value="${esc(it0.location || '')}" placeholder="pl. Q épület, QBF13" autocomplete="off"></div>
+    <div class="field"><label for="i-desc">Leírás</label><textarea id="i-desc" data-f="description" rows="4" placeholder="Részletek, oldalszámok, követelmények…">${esc(it0.description || '')}</textarea></div>
+    <div class="field"><label>Csatolmányok</label><div id="it-atts"></div>
+      <div class="btn-row"><label class="btn small">${ic('camera')} Fotó<input type="file" accept="image/*" multiple hidden data-itemup></label><label class="btn small">${ic('file')} Fájl<input type="file" multiple hidden data-itemup></label></div></div>
+    <p class="muted small">Létrehozva: ${fmtTs(it0.createdAt)} · Módosítva: <span id="it-mod">${fmtTs(it0.updatedAt)}</span></p>
+    <button class="btn danger block mt" data-sact="delete">${ic('trash')} Tétel törlése</button>`;
+  let s;
+  const cur = () => byId('item', id);
+  async function save(patch) {
+    const c = cur(); if (!c) return;
+    const next = { ...c, ...patch, updatedAt: Date.now() };
+    if (next.triage && next.courseId && next.title && next.type) next.triage = false;
+    await commit([{ store: 'item', put: next }]);
+    $('#it-mod', s.root).textContent = fmtTs(next.updatedAt);
+    $('.triage-b', s.root).hidden = !next.triage;
+    renderMain();
+  }
+  function readField(el) {
+    const f = el.dataset.f; let v = el.value;
+    if (f === 'time') v = fromInputTime(v);
+    else if (f === 'date' || f === 'courseId' || f === 'type') v = v || null;
+    else if (f === 'title' || f === 'location') v = v.trim();
+    return [f, v];
+  }
+  function renderAtts() {
+    const box = $('#it-atts', s.root); if (!box) return;
+    const atts = S.att.filter((a) => a.itemId === id).sort((a, b) => a.createdAt - b.createdAt);
+    box.innerHTML = atts.length ? atts.map((a) => `<div class="arow"><button data-act="openAtt" data-id="${a.id}" style="display:contents">${a.thumb ? `<img class="th" src="${a.thumb}" alt="">` : `<span class="th">${ic('file')}</span>`}<span class="grow"><span class="nm" style="display:block">${esc(a.name)}</span><span class="muted small">${fmtSize(a.size)}</span></span></button><button class="x" data-sact="delAtt" data-id="${a.id}" aria-label="Csatolmány törlése">${ic('x')}</button></div>`).join('') : '<p class="muted small" style="margin:0 4px">Nincs csatolmány.</p>';
+  }
+  const onData = () => { if (!cur()) { closeSheet(s); return; } renderAtts(); };
+  s = openSheet({
+    title: 'Tétel', body,
+    right: '<button class="hbtn b" data-sact="close">Kész</button>',
+    actions: {
+      close: () => closeSheet(s),
+      status: (b) => { $$('.seg button', s.root).forEach((x) => x.classList.toggle('on', x === b)); save({ status: b.dataset.v }); },
+      clearDate: () => { $('#i-date', s.root).value = ''; save({ date: null }); },
+      clearTime: () => { $('#i-time', s.root).value = ''; save({ time: null }); },
+      untriage: () => save({ triage: false }),
+      delAtt: async (b) => {
+        const a = byId('att', b.dataset.id);
+        if (!a || !confirm(`Törlöd ezt a csatolmányt?\n„${a.name}”`)) return;
+        await commit([{ store: 'att', del: a.id }, { store: 'blob', del: a.id }]);
+        renderMain();
+      },
+      delete: async () => {
+        const c = cur(); const n = S.att.filter((a) => a.itemId === id).length;
+        if (!confirm(`Biztosan törlöd ezt a tételt${n ? ` és ${n} csatolmányát` : ''}?\n\nEz nem vonható vissza.`)) return;
+        window.removeEventListener('unihub:data', onData);
+        await commit(deleteOps('item', c.id).ops);
+        closeSheet(s); renderMain(); toast('Tétel törölve');
+      },
+    },
+    onClose: () => {
+      window.removeEventListener('unihub:data', onData);
+      // Ha egy mező még nem mentődött (pl. fókuszban maradt), most mentjük.
+      const c = cur(); if (!c) return;
+      const patch = {};
+      for (const el of $$('[data-f]', s.root)) { const [f, v] = readField(el); if ((c[f] ?? null) !== (v ?? null) && !(f === 'description' && (c[f] || '') === v)) patch[f] = v; }
+      if (Object.keys(patch).length) save(patch);
+    },
+  });
+  s.root.addEventListener('change', async (e) => {
+    const el = e.target;
+    if (el.dataset.f) { const [f, v] = readField(el); if ((cur()[f] ?? null) !== (v ?? null)) save({ [f]: v }); return; }
+    if (el.hasAttribute('data-itemup')) {
+      const files = [...el.files]; el.value = '';
+      await addAttachments(files, { itemId: id });
+      const c = cur(); if (c) await commit([{ store: 'item', put: { ...c, updatedAt: Date.now() } }]);
+      renderMain();
+    }
+  });
+  window.addEventListener('unihub:data', onData);
+  renderAtts();
+}
+
+/* ============ Villámrögzítés ============ */
+function openCapture(preCourse) {
+  const st = { courseId: preCourse || null, type: null, date: null, files: [], busy: 0 };
+  const t = today();
+  const active = S.course.filter((c) => semActive(semOf(c)));
+  const pool = active.length ? active : S.course.slice();
+  if (preCourse && !pool.some((c) => c.id === preCourse)) { const pc = byId('course', preCourse); if (pc) pool.push(pc); }
+  const recent = S.meta.recentCourses || [];
+  pool.sort((a, b) => {
+    if (a.id === preCourse) return -1; if (b.id === preCourse) return 1;
+    const ra = recent.indexOf(a.id), rb = recent.indexOf(b.id);
+    if (ra !== rb) { if (ra < 0) return 1; if (rb < 0) return -1; return ra - rb; }
+    return sortByName(a, b);
+  });
+  const body = `<input id="qc-title" class="big" placeholder="Mit kell megjegyezni?" autocomplete="off" enterkeyhint="done" aria-label="Rövid cím">
+    <div class="lbl">Tantárgy</div>
+    <div class="chips scroll">${pool.length ? pool.map((c) => `<button class="chip ${c.id === st.courseId ? 'on' : ''}" data-sact="course" data-id="${c.id}"><i class="dot" style="background:${colorOf(c)}"></i>${esc(c.name)}</button>`).join('') : '<span class="muted small">Még nincs tantárgy, később is besorolhatod.</span>'}</div>
+    <div class="lbl">Típus</div>
+    <div class="chips wrap">${TYPES.map(([k, l]) => `<button class="chip" data-sact="type" data-v="${k}">${l}</button>`).join('')}</div>
+    <div class="lbl">Dátum</div>
+    <div class="chips wrap" id="qc-dates"><button class="chip on" data-sact="date" data-v="">Nincs</button><button class="chip" data-sact="date" data-v="${t}">Ma</button><button class="chip" data-sact="date" data-v="${addDays(t, 1)}">Holnap</button><label class="chip" id="qc-pick"><span>Választ…</span><input type="date" id="qc-date" aria-label="Dátum választása"></label></div>
+    <div class="lbl">Csatolmány</div>
+    <div class="btn-row" style="margin-top:0"><label class="btn">${ic('camera')} Fotó<input type="file" accept="image/*" multiple hidden data-qcup></label><label class="btn">${ic('file')} Fájl<input type="file" multiple hidden data-qcup></label></div>
+    <div id="qc-files"></div>
+    <button class="btn primary block lg mt" data-sact="save" id="qc-save">Mentés</button>
+    <p class="muted small" style="text-align:center">Semmi sem kötelező. A hiányos tételek a Rendezésre vár listába kerülnek.</p>`;
+  let s;
+  const renderFiles = () => {
+    const box = $('#qc-files', s.root);
+    box.innerHTML = st.files.map((p, i) => `<div class="arow">${p.meta.thumb ? `<img class="th" src="${p.meta.thumb}" alt="">` : `<span class="th">${ic('file')}</span>`}<span class="grow"><span class="nm" style="display:block">${esc(p.meta.name)}</span><span class="muted small">${fmtSize(p.meta.size)}</span></span><button class="x" data-sact="rmFile" data-i="${i}" aria-label="Eltávolítás">${ic('x')}</button></div>`).join('') + (st.busy ? '<div class="busy"><i class="spin"></i>Feldolgozás…</div>' : '');
+  };
+  const setDateChip = (v, label) => {
+    st.date = v || null;
+    $$('#qc-dates .chip', s.root).forEach((x) => x.classList.toggle('on', x.id === 'qc-pick' ? !!label : x.dataset.v === (v || '') && !label));
+    $('#qc-pick span', s.root).textContent = label || 'Választ…';
+  };
+  async function save(b) {
+    if (st.busy) { toast('Várj, még feldolgozom a csatolmányt…'); return; }
+    const title = $('#qc-title', s.root).value.trim();
+    if (!title && !st.files.length && !st.courseId && !st.type) { toast('Adj meg legalább egy címet, tantárgyat vagy csatolmányt.'); return; }
+    b.disabled = true;
+    const now = Date.now();
+    const item = { id: uid(), courseId: st.courseId, type: st.type, title, description: '', date: st.date, time: null, location: '', status: 'todo', createdAt: now, updatedAt: now };
+    item.triage = !(item.courseId && item.title && item.type);
+    const ops = [{ store: 'item', put: item }, ...attOps(st.files, { itemId: item.id })];
+    if (st.courseId) ops.push({ store: 'meta', put: { key: 'recentCourses', value: [st.courseId, ...recent.filter((x) => x !== st.courseId)].slice(0, 10) } });
+    try { await commit(ops); } catch { b.disabled = false; return; }
+    closeSheet(s); renderMain();
+    toast(item.triage ? 'Mentve · a Rendezésre vár listába került' : 'Mentve');
+  }
+  s = openSheet({
+    title: 'Új tétel', modal: true,
+    left: '<button class="hbtn" data-sact="cancel">Mégse</button>',
+    right: '<button class="hbtn b" data-sact="save">Mentés</button>',
+    body,
+    actions: {
+      cancel: () => {
+        const dirty = $('#qc-title', s.root).value.trim() || st.files.length;
+        if (dirty && !confirm('Elveted a beírt tételt?')) return;
+        closeSheet(s);
+      },
+      save: (b) => save(b),
+      course: (b) => { const on = st.courseId !== b.dataset.id; st.courseId = on ? b.dataset.id : null; $$('[data-sact=course]', s.root).forEach((x) => x.classList.toggle('on', on && x === b)); },
+      type: (b) => { const on = st.type !== b.dataset.v; st.type = on ? b.dataset.v : null; $$('[data-sact=type]', s.root).forEach((x) => x.classList.toggle('on', on && x === b)); },
+      date: (b) => { $('#qc-date', s.root).value = ''; setDateChip(b.dataset.v, null); },
+      rmFile: (b) => { st.files.splice(Number(b.dataset.i), 1); renderFiles(); },
+    },
+  });
+  s.root.addEventListener('change', async (e) => {
+    const el = e.target;
+    if (el.id === 'qc-date') { if (el.value) setDateChip(el.value, fmtShort(el.value)); else setDateChip('', null); return; }
+    if (el.hasAttribute('data-qcup')) {
+      const files = [...el.files]; el.value = '';
+      st.busy++; renderFiles();
+      const prepared = await prepareFiles(files);
+      st.busy--; st.files.push(...prepared); renderFiles();
+    }
+  });
+  $('#qc-title', s.root).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
+  try { $('#qc-title', s.root).focus({ preventScroll: true }); } catch {}
+}
+
+/* ============ Mentés és visszaállítás (ZIP) ============ */
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8) { let c = 0xffffffff; for (let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; }
+function makeZip(files) {
+  const enc = new TextEncoder(), parts = [], central = [];
+  let offset = 0;
+  const d = new Date();
+  const dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  const dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  for (const f of files) {
+    const nameB = enc.encode(f.name), crc = crc32(f.data), size = f.data.length;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+    lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true);
+    lh.setUint32(18, size, true); lh.setUint32(22, size, true); lh.setUint16(26, nameB.length, true); lh.setUint16(28, 0, true);
+    parts.push(lh.buffer, nameB, f.data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+    ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true); ch.setUint32(16, crc, true); ch.setUint32(20, size, true); ch.setUint32(24, size, true);
+    ch.setUint16(28, nameB.length, true); ch.setUint16(30, 0, true); ch.setUint16(32, 0, true); ch.setUint16(34, 0, true); ch.setUint16(36, 0, true);
+    ch.setUint32(38, 0, true); ch.setUint32(42, offset, true);
+    central.push(ch.buffer, nameB);
+    offset += 30 + nameB.length + size;
+  }
+  const cdSize = central.reduce((s, p) => s + p.byteLength, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, end.buffer], { type: 'application/zip' });
+}
+async function inflateRaw(u8) {
+  if (typeof DecompressionStream === 'undefined') throw new Error('Ez a tömörített zip itt nem nyitható meg. Az eredeti UniHub-mentést használd.');
+  const stream = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function readZip(file) {
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const dv = new DataView(buf.buffer);
+  let e = -1;
+  for (let i = buf.length - 22; i >= Math.max(0, buf.length - 65557); i--) if (dv.getUint32(i, true) === 0x06054b50) { e = i; break; }
+  if (e < 0) throw new Error('Ez nem érvényes mentésfájl.');
+  const n = dv.getUint16(e + 10, true);
+  let p = dv.getUint32(e + 16, true);
+  const out = {}, dec = new TextDecoder();
+  for (let k = 0; k < n; k++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) throw new Error('A mentésfájl sérült.');
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+    const nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    const name = dec.decode(buf.subarray(p + 46, p + 46 + nl));
+    const start = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true);
+    const raw = buf.subarray(start, start + csize);
+    if (!name.endsWith('/')) {
+      if (method === 0) out[name] = raw;
+      else if (method === 8) out[name] = await inflateRaw(raw);
+      else throw new Error('Ismeretlen tömörítés a mentésfájlban.');
+    }
+    p += 46 + nl + xl + cl;
+  }
+  return out;
+}
+const safeName = (s) => (s || 'fajl').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').slice(0, 120);
+async function buildBackup() {
+  const data = { app: 'UniHub', format: 1, version: APP_VERSION, exportedAt: new Date().toISOString(), stores: {}, meta: S.meta, blobs: [] };
+  for (const s of DATA_STORES) data.stores[s] = S[s];
+  const blobs = await reqP(db.transaction('blob').objectStore('blob').getAll());
+  const files = [];
+  for (const b of blobs) {
+    const a = byId('att', b.id); if (!a) continue;
+    const path = `csatolmanyok/${b.id}/${safeName(a.name)}`;
+    data.blobs.push({ id: b.id, type: b.type, path });
+    files.push({ name: path, data: new Uint8Array(b.data) });
+  }
+  files.unshift({ name: 'unihub-adatok.json', data: new TextEncoder().encode(JSON.stringify(data)) });
+  return makeZip(files);
+}
+let pendingBackup = null;
+async function restoreFromFile(file) {
+  let files, data;
+  try {
+    files = await readZip(file);
+    const j = files['unihub-adatok.json'];
+    if (!j) throw new Error('Ez a fájl nem UniHub-mentés.');
+    data = JSON.parse(new TextDecoder().decode(j));
+    if (data.app !== 'UniHub' || !data.stores) throw new Error('Ez a fájl nem UniHub-mentés.');
+  } catch (e) { toast(e.message || 'A mentés nem olvasható.', true); return; }
+  const missing = (data.blobs || []).filter((b) => !files[b.path]).length;
+  const cnt = (k) => (data.stores[k] || []).length;
+  const when = data.exportedAt ? fmtTs(Date.parse(data.exportedAt)) : 'ismeretlen időpont';
+  const msg = `Mentés ideje: ${when}\n${cnt('course')} tantárgy, ${cnt('item')} tétel, ${cnt('att')} csatolmány.` + (missing ? `\nFigyelem: ${missing} csatolmány hiányzik a fájlból.` : '') + '\n\nA jelenlegi adatok törlődnek, és a mentés tartalma kerül a helyükre. Folytatod?';
+  if (!confirm(msg)) return;
+  const t = db.transaction(STORES, 'readwrite');
+  const done = txDone(t);
+  for (const s of STORES) t.objectStore(s).clear();
+  for (const s of DATA_STORES) for (const o of data.stores[s] || []) t.objectStore(s).put(o);
+  for (const b of data.blobs || []) { const u8 = files[b.path]; if (u8) t.objectStore('blob').put({ id: b.id, type: b.type, data: u8.slice().buffer }); }
+  for (const [k, v] of Object.entries(data.meta || {})) t.objectStore('meta').put({ key: k, value: v });
+  try { await done; } catch (e) { console.error(e); toast('A visszaállítás nem sikerült, az adatok nem változtak.', true); return; }
+  await loadAll();
+  renderMain();
+  toast('Visszaállítás kész');
+}
+
+/* ============ Eseménykezelés ============ */
+const ACT = {
+  capture: (el) => openCapture(el.dataset.course || null),
+  openItem: (el) => openItem(el.dataset.id),
+  cycleStatus: async (el) => {
+    const it = byId('item', el.dataset.id); if (!it) return;
+    const nx = { todo: 'doing', doing: 'done', done: 'todo' }[it.status] || 'done';
+    await commit([{ store: 'item', put: { ...it, status: nx, updatedAt: Date.now() } }]);
+    renderMain();
+    toast(nx === 'done' ? 'Kész ✓' : nx === 'doing' ? 'Folyamatban' : 'Nincs elkezdve');
+  },
+  openOcc: (el) => openOcc(el.dataset.slot, el.dataset.date, !!el.dataset.moved),
+  ttPrev: () => { ttSel = addDays(ttSel || today(), -7); renderMain(); },
+  ttNext: () => { ttSel = addDays(ttSel || today(), 7); renderMain(); },
+  ttToday: () => { ttSel = today(); renderMain(); },
+  ttDay: (el) => { ttSel = el.dataset.date; renderMain(); },
+  newUni: () => editUni(),
+  editUni: (el) => editUni(el.dataset.id),
+  newSem: (el) => editSem(null, el.dataset.uni),
+  editSem: (el) => editSem(el.dataset.id),
+  newCourse: (el) => editCourse(null, el.dataset.sem),
+  editCourse: (el) => editCourse(el.dataset.id),
+  newSlot: (el) => editSlot(null, el.dataset.course),
+  editSlot: (el) => editSlot(el.dataset.id),
+  openAtt: (el) => openViewer(el.dataset.id),
+  hideInstall: () => { lsSet('hideInstall', '1'); renderMain(); },
+  filterNodate: () => { F = { ...DEFAULT_F, period: 'nodate' }; saveFilters(); },
+  resetFilters: () => { F = { ...DEFAULT_F }; saveFilters(); renderMain(); },
+  makeBackup: async (el) => {
+    const area = $('#backup-area');
+    el.disabled = true; el.innerHTML = '<i class="spin"></i> Készül…';
+    try { pendingBackup = await buildBackup(); } catch (e) { console.error(e); toast('A mentés nem készült el.', true); el.disabled = false; el.textContent = 'Mentés készítése'; return; }
+    area.innerHTML = `<button class="btn primary" data-act="shareBackup">${ic('share')} Mentés a Fájlokba (${fmtSize(pendingBackup.size)})</button>`;
+  },
+  shareBackup: async () => {
+    if (!pendingBackup) return;
+    const ok = await shareOrDownload(pendingBackup, `unihub-mentes-${today()}.zip`);
+    if (ok) { await setMeta('lastBackup', Date.now()); renderMain(); toast('Mentés elkészült'); }
+  },
+};
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const f = ACT[el.dataset.act]; if (!f) return;
+  if (el.tagName !== 'A') e.preventDefault();
+  f(el, e);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sheetStack.length) { const top = sheetStack[sheetStack.length - 1]; const c = top.actions.cancel || top.actions.close; if (c) c(); else closeSheet(); return; }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[role=button][data-act]')) { e.preventDefault(); e.target.click(); return; }
+  const typing = e.target.closest && e.target.closest('input,textarea,select');
+  if (!sheetStack.length && !typing && (e.key === 'n' || e.key === 'N') && !e.altKey) { e.preventDefault(); openCapture(); }
+});
+document.addEventListener('change', async (e) => {
+  const el = e.target;
+  if (el.closest('.overlay')) return;
+  if (el.dataset.filter) {
+    F[el.dataset.filter] = el.value;
+    if (el.dataset.filter === 'uni') F.course = '';
+    saveFilters(); renderMain(); return;
+  }
+  if (el.dataset.upload) {
+    const files = [...el.files]; el.value = '';
+    await addAttachments(files, { courseId: el.dataset.upload });
+    renderMain(); return;
+  }
+  if (el.hasAttribute('data-restore')) {
+    const f = el.files[0]; el.value = '';
+    if (f) await restoreFromFile(f);
+  }
+});
+window.addEventListener('hashchange', () => { while (sheetStack.length) closeSheet(); renderMain(); window.scrollTo(0, 0); });
+let lastWide = isWide();
+window.addEventListener('resize', () => { const w = isWide(); if (w !== lastWide) { lastWide = w; if (route().name === 'orarend') renderMain(); } });
+// Napváltás húzással az órarendben (telefonon).
+let touchX = null, touchY = null;
+document.addEventListener('touchstart', (e) => { if (route().name !== 'orarend' || isWide() || sheetStack.length) return; touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', (e) => {
+  if (touchX == null) return;
+  const dx = e.changedTouches[0].clientX - touchX, dy = e.changedTouches[0].clientY - touchY;
+  touchX = null;
+  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) { ttSel = addDays(ttSel || today(), dx < 0 ? 1 : -1); renderMain(); }
+}, { passive: true });
+// Percenként frissül a „következő óra”.
+let lastDay = today();
+setInterval(() => {
+  if (sheetStack.length || document.hidden) return;
+  const r = route().name;
+  if (today() !== lastDay) { lastDay = today(); renderMain(); return; }
+  if (r === 'attekintes' || r === 'orarend') renderMain();
+}, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !sheetStack.length) { lastDay = today(); renderMain(); } });
+
+/* ============ Indítás ============ */
+(async function init() {
+  try {
+    if (!('indexedDB' in window)) throw new Error('no idb');
+    db = await openDB();
+    db.onversionchange = () => { db.close(); location.reload(); };
+    await loadAll();
+  } catch (e) {
+    console.error(e);
+    $('#main').innerHTML = '<div class="page fatal"><h1>Az adatbázis nem nyitható meg</h1><p class="muted">Privát böngészés közben vagy letiltott webhelyadatokkal az alkalmazás nem tud adatot tárolni. Nyisd meg normál Safari-lapon, vagy a főképernyőről.</p></div>';
+    return;
+  }
+  renderMain();
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  if (S.item.length || S.course.length) ensurePersist();
+})();
+</script>
+</body>
+</html>
